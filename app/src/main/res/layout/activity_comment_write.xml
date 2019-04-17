@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".CommentWriteActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/linear_border_gray_bottom">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="24dp"
+            android:layout_margin="10dp"
+            android:paddingBottom="10dp"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:src="@drawable/ic_15"
+            />
+
+    </LinearLayout>
+
+
+    <RatingBar
+        android:id="@+id/ratingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:stepSize="0.1"
+        android:layout_gravity="center"
+        />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="평점을 입력해주세요"
+        android:layout_gravity="center"/>
+
+    <EditText
+        android:id="@+id/et_contents"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_margin="10dp"
+        android:maxLength="100"
+        android:gravity="top"
+        android:padding="10dp"
+        android:textSize="18dp"
+        android:hint="100자 이내로 작성해주세요."
+        android:textCursorDrawable="@color/colorPrimaryDark"
+        android:background="@drawable/edit_border"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="right">
+
+
+        <Button
+            android:id="@+id/btn_save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorAccent"
+            android:background="@drawable/linear_border_purple"
+            android:layout_marginRight="10dp"
+            android:text="저장" />
+
+
+        <Button
+            android:id="@+id/btn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:textColor="@color/colorAccent"
+            android:background="@drawable/linear_border_purple"
+            android:text="취소" />
+    </LinearLayout>
+
+</LinearLayout>

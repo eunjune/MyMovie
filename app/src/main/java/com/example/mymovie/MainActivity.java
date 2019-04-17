@@ -1,149 +1,202 @@
 package com.example.mymovie;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView likeCountView,dislikeCountView;
-    private ImageView likeButton,dislikeButton;
+    private TextView tvLikeCount, tvDislikeCount,tvTitle;
+    private ImageView ivLikeButton, ivDislikeButton;
+    private RatingBar ratingBar;
+    private Button btnWrite,btnAllComments;
 
     private int likeCount;
-    private  int dislikeCount;
+    private int dislikeCount;
     private boolean likeState = false;
     private boolean dislikeState = false;
+
+    private CommentAdapter adapter;
+    //private ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        likeButton = (ImageView) findViewById(R.id.likeButton);
-        likeButton.setOnClickListener(new View.OnClickListener() {
+        // 좋아요 클릭시
+        tvLikeCount = (TextView) findViewById(R.id.tv_likeCount);
+        likeCount = Integer.valueOf(tvLikeCount.getText().toString());
+
+        ivLikeButton = (ImageView) findViewById(R.id.btn_like);
+        ivLikeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(likeState) {
-                    descLikeCount();
-                } else {
-                    if(dislikeState) {
-                        descDisLikeCount();
-                        dislikeState = !dislikeState;
-                        dislikeButton.setSelected(dislikeState);
-                    }
-                    incrLikeCount();
-                }
-
-                likeState = !likeState;
-                likeButton.setSelected(likeState);
-
+                likeClick();
             }
         });
 
-        likeCountView = (TextView) findViewById(R.id.likeCountView);
-        likeCount = Integer.valueOf(likeCountView.getText().toString());
 
-        dislikeButton = (ImageView) findViewById(R.id.dislikeButton);
-        dislikeButton.setOnClickListener(new View.OnClickListener() {
+
+        // 싫어요 클릭시
+        tvDislikeCount = (TextView) findViewById(R.id.tv_dislikeCount);
+        dislikeCount = Integer.valueOf(tvDislikeCount.getText().toString());
+
+        ivDislikeButton = (ImageView) findViewById(R.id.btn_dislike);
+        ivDislikeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(dislikeState) {
-                    descDisLikeCount();
-                } else {
-                    if(likeState) {
-                        descLikeCount();
-                        likeState = !likeState;
-                        likeButton.setSelected(likeState);
-                    }
-                    incrDisLikeCount();
-                }
+                dislikeClick();
+            }
+        });
 
+        // 리스트 뷰
+        renderListView();
+
+        tvTitle = (TextView)findViewById(R.id.tv_title);
+        ratingBar = (RatingBar)findViewById(R.id.ratingBar);
+        btnWrite = (Button)findViewById(R.id.write_btn);
+        btnWrite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showCommentWriteActivity();
+            }
+        });
+        btnAllComments = (Button)findViewById(R.id.btn_allComments);
+        btnAllComments.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAllCommentActivity();
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+
+        if(requestCode == 101) {
+            String contents = intent.getStringExtra("contents");
+            float rating = intent.getFloatExtra("rating",0f);
+
+            adapter.getItems().add(new CommentItem("iws**"
+                    ,contents
+                    ,10,rating,0));
+        }
+
+        if(requestCode == 102 && resultCode == RESULT_OK) {
+            showCommentWriteActivity();
+        }
+    }
+
+    private void likeClick() {
+        if(likeState) {
+            likeCount--;
+        } else {
+            if(dislikeState) {
+                dislikeCount--;
+                tvDislikeCount.setText(String.valueOf(dislikeCount));
                 dislikeState = !dislikeState;
-                dislikeButton.setSelected(dislikeState);
-
+                ivDislikeButton.setSelected(dislikeState);
             }
-        });
+            likeCount++;
+        }
 
-        dislikeCountView = (TextView) findViewById(R.id.dislikeCountView);
-        dislikeCount = Integer.valueOf(dislikeCountView.getText().toString());
+        tvLikeCount.setText(String.valueOf(likeCount));
+        likeState = !likeState;
+        ivLikeButton.setSelected(likeState);
+    }
 
+    private void dislikeClick() {
+        if(dislikeState) {
+            dislikeCount--;
+        } else {
+            if(likeState) {
+                likeCount--;
+                tvLikeCount.setText(String.valueOf(likeCount));
+                likeState = !likeState;
+                ivLikeButton.setSelected(likeState);
+            }
+            dislikeCount++;
+        }
+
+        tvDislikeCount.setText(String.valueOf(dislikeCount));
+        dislikeState = !dislikeState;
+        ivDislikeButton.setSelected(dislikeState);
+    }
+
+    private void renderListView() {
+        ArrayList<CommentItem> items = new ArrayList<>();
         ListView listView = (ListView)findViewById(R.id.listView);
-        CommentAdapter adapter = new CommentAdapter();
 
-        adapter.items.add(new CommentItem("kym71**"
-                , "적당히 재밌다. 오랜만에 잠 안오는 영화봤네요."
-                , 10, 5, 0));
 
-        adapter.items.add(new CommentItem("kym71**"
-                , "적당히 재밌다. 오랜만에 잠 안오는 영화봤네요."
-                , 10, 5, 0));
+        items.add(new CommentItem("kym71**"
+        , "적당히 재밌다. 오랜만에 잠 안오는 영화봤네요."
+        , 10, 5, 0));
 
+        items.add(new CommentItem("angel**"
+        , "웃긴 내용보다는 좀 더 진지한 영화."
+        , 15, 4.5f, 1));
+
+        items.add(new CommentItem("beaut**"
+        , "연기가 부족한 느낌이 드는 배우도 있다. 그래도 전체적으로는 재밌다."
+        , 16, 4.5f, 3));
+
+        items.add(new CommentItem("pargo**"
+        , "스트레스가 해소되는 영화네요."
+        , 19, 5, 0));
+
+        items.add(new CommentItem("memory**"
+        , "아무 생각없이 보면 되는 영화. 하지만 생각하면 안되는 영화."
+        , 22, 4.5f, 1));
+
+        items.add(new CommentItem("code2**"
+        , "적당히 웃기고 적당히 재밌었어요."
+        , 23, 5, 0));
+
+        items.add(new CommentItem("add11**"
+        , "요즘 제대로 만든 영화 없더니 잘 만들었습니다."
+        , 27, 3, 4));
+
+        items.add(new CommentItem("code2**"
+        , "즐길 수 있는 영화입니다."
+        , 30, 5, 5));
+
+        adapter = new CommentAdapter(items,getApplicationContext());
         listView.setAdapter(adapter);
-
     }
 
-    public void incrLikeCount() {
-        likeCount++;
-        likeCountView.setText(String.valueOf(likeCount));
+    private void showCommentWriteActivity() {
+        String title = tvTitle.getText().toString();
+
+        Intent intent = new Intent(getApplicationContext(),CommentWriteActivity.class);
+        intent.putExtra("title",title);
+        startActivityForResult(intent, 101);
     }
 
-    public void descLikeCount() {
-        likeCount--;
-        likeCountView.setText(String.valueOf(likeCount));
-    }
+    private  void showAllCommentActivity() {
+        ArrayList<CommentItem> list = adapter.getItems();
 
-    public void incrDisLikeCount() {
-        dislikeCount++;
-        dislikeCountView.setText(String.valueOf(dislikeCount));
-    }
+        TextView tvRating = (TextView)findViewById(R.id.tv_rating);
 
-    public void descDisLikeCount() {
-        dislikeCount--;
-        dislikeCountView.setText(String.valueOf(dislikeCount));
-    }
+        String title = tvTitle.getText().toString();
+        float rating = ratingBar.getRating();
+        String strRating = tvRating.getText().toString();
 
-    class CommentAdapter extends BaseAdapter {
+        Intent intent = new Intent(getApplicationContext(),AllCommentActivity.class);
+        intent.putExtra("commentsList",list);
+        intent.putExtra("title",title);
+        intent.putExtra("rating",rating);
+        intent.putExtra("strRating",strRating);
 
-        private ArrayList<CommentItem> items = new ArrayList<CommentItem>();
+        startActivityForResult(intent,102);
 
-        @Override
-        public int getCount() {
-            return items.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return items.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            CommentItemView view;
-
-            if(convertView == null) {
-                view = new CommentItemView(getApplicationContext());
-            } else {
-                view = (CommentItemView)convertView;
-            }
-
-            view.addId(items.get(position).getId());
-            view.addCommentRating(items.get(position).getRating());
-            view.addContent(items.get(position).getContent());
-            view.addCreateTime(items.get(position).getCreateTime());
-            view.addRecommendation(items.get(position).getRecommendation());
-
-            return view;
-        }
     }
 }

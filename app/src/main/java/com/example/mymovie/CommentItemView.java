@@ -45,18 +45,18 @@ public class CommentItemView extends LinearLayout {
         idTxt.setText(id);
     }
 
-    public void addCreateTime(int createTime) {
-        createTimeTxt.setText(createTime + "분전전");    }
+    public void addCreateTime(int createTime, Context context) {
+        createTimeTxt.setText(createTime + context.getString(R.string.comment_item_create_time));    }
 
     public void addContent(String content) {
         contentTxt.setText(content);
     }
 
-    public void addRecommendation(int recommendation) {
-        recommendationTxt.setText("추천 "+recommendation);
+    public void addRecommendation(int recommendation,Context context) {
+        recommendationTxt.setText(context.getString(R.string.comment_item_recommendation)+recommendation);
     }
 
-    public void addCommentRating(int rating) {
+    public void addCommentRating(float rating) {
         commentRating.setRating(rating);
     }
 

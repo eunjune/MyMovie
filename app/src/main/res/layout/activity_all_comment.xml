@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AllCommentActivity"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/linear_border_gray_bottom">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text=""
+            android:textSize="24dp"
+            android:layout_margin="10dp"
+            android:paddingBottom="10dp"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:src="@drawable/ic_15"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp"
+        android:gravity="right">
+
+        <RatingBar
+            android:id="@+id/ratingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:stepSize="0.1"
+            android:layout_marginRight="5dp"
+            style="?android:attr/ratingBarStyleSmall"
+            />
+
+        <TextView
+            android:id="@+id/tv_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(1,142명 참여)"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="@drawable/section_boudary">
+
+    </LinearLayout>
+
+    <!-- 한줄평 -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@id/write_btn"
+            android:text="한줄평"
+            android:textColor="@android:color/background_dark"
+            android:textSize="18dp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/write_btn"
+            android:layout_marginBottom="3dp"
+            android:layout_toLeftOf="@+id/write_btn"
+            android:src="@drawable/ic_review_selected" />
+
+        <Button
+            android:id="@+id/write_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@android:color/transparent"
+            android:text="작성하기"
+            android:textColor="#E44418"
+            android:textSize="18dp"
+            android:textStyle="bold"
+
+            />
+
+        <ListView
+            android:id="@+id/listView"
+            android:layout_above="@+id/btn_allComments"
+            android:layout_below="@+id/write_btn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"></ListView>
+
+    </RelativeLayout>
+
+
+</LinearLayout>

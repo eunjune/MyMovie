@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MyMovie</string>
+    <string name="app_name">시네마천국</string>
 
     <string name="summary">\n군도, 백성을 구하라 \n양반과 탐관오리들의 착취가 극에 달했던 조선
     철종 13년.힘 없는 백성의 편이 되어 세상을 바로잡고자 하는 의적때인 군도(群盜), 지리산 추설이
@@ -9,4 +9,8 @@
         죽어도 잊지 못할 끔찍한 일을 당한 뒤 군도에 합류. 지리산 추설의 신 거성(新 巨星) 도치로 거듭난다.
         \n\n뭉치면 백성, 흩어지면 도적!\n망할 세상을 뒤집기 위해, 백성이 주인인 새 세상을 향해 도치를
         필두로 한 군도는 백성의 적, 조윤과 한 판 승부를 시작하는데... </string>
+
+    <string name="comment_item_create_time">분전</string>
+    <string name="comment_item_recommendation">추천 </string>
+    <string name="all_comment_rating">(1,142명 참여)</string>
 </resources>

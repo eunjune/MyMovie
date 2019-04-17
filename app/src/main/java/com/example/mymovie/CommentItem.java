@@ -1,13 +1,15 @@
 package com.example.mymovie;
 
-public class CommentItem {
+import java.io.Serializable;
+
+public class CommentItem implements Serializable {
     String id;
     String content;
     int createTime;
-    int rating;
+    float rating;
     int recommendation;
 
-    public CommentItem(String id, String content, int createTime, int rating, int recommendation) {
+    public CommentItem(String id, String content, int createTime, float rating, int recommendation) {
         this.id = id;
         this.content = content;
         this.createTime = createTime;
@@ -39,11 +41,11 @@ public class CommentItem {
         this.createTime = createTime;
     }
 
-    public int getRating() {
+    public float getRating() {
         return rating;
     }
 
-    public void setRating(int rating) {
+    public void setRating(float rating) {
         this.rating = rating;
     }
 

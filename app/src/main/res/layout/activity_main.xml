@@ -43,6 +43,7 @@
                     android:orientation="horizontal">
 
                     <TextView
+                        android:id="@+id/tv_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="군도"
@@ -83,14 +84,14 @@
                     android:orientation="horizontal">
 
                     <ImageView
-                        android:id="@+id/likeButton"
+                        android:id="@+id/btn_like"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/thumb_up"
                         android:textColor="@android:color/background_light" />
 
                     <TextView
-                        android:id="@+id/likeCountView"
+                        android:id="@+id/tv_likeCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
@@ -101,7 +102,7 @@
 
 
                     <ImageView
-                        android:id="@+id/dislikeButton"
+                        android:id="@+id/btn_dislike"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="20dp"
@@ -109,7 +110,7 @@
                         android:textColor="@android:color/background_light" />
 
                     <TextView
-                        android:id="@+id/dislikeCountView"
+                        android:id="@+id/tv_dislikeCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
@@ -134,7 +135,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/linear_border_gray"
+                android:background="@drawable/linear_border_gray_right"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -162,7 +163,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/linear_border_gray"
+                android:background="@drawable/linear_border_gray_right"
                 android:gravity="center"
                 android:orientation="vertical">
 
@@ -182,7 +183,7 @@
                     android:orientation="horizontal">
 
                     <RatingBar
-                        android:id="@+id/ratingBar1"
+                        android:id="@+id/ratingBar"
                         style="?android:attr/ratingBarStyleSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -192,6 +193,7 @@
                         android:stepSize="0.1" />
 
                     <TextView
+                        android:id="@+id/tv_rating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
@@ -390,13 +392,13 @@
             
             <ListView
                 android:id="@+id/listView"
-                android:layout_above="@+id/all_btn"
+                android:layout_above="@+id/btn_allComments"
                 android:layout_below="@+id/write_btn"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"></ListView>
 
             <Button
-                android:id="@+id/all_btn"
+                android:id="@+id/btn_allComments"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_alignParentBottom="true"

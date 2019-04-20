@@ -44,17 +44,17 @@ public class CommentAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         CommentItemView view;
 
-        if(convertView == null) {
+        if (convertView == null) {
             view = new CommentItemView(context);
         } else {
-            view = (CommentItemView)convertView;
+            view = (CommentItemView) convertView;
         }
 
         view.addId(items.get(position).getId());
         view.addCommentRating(items.get(position).getRating());
         view.addContent(items.get(position).getContent());
-        view.addCreateTime(items.get(position).getCreateTime(),context);
-        view.addRecommendation(items.get(position).getRecommendation(),context);
+        view.addCreateTime(items.get(position).getCreateTime(), context);
+        view.addRecommendation(items.get(position).getRecommendation(), context);
 
         return view;
     }

@@ -19,12 +19,12 @@ public class AllCommentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_comment);
 
-        tvTitle = (TextView)findViewById(R.id.tv_title);
+        tvTitle = (TextView) findViewById(R.id.tv_title);
 
         Intent intent = getIntent();
         processIntent(intent);
 
-        Button btnWrite = (Button)findViewById(R.id.write_btn);
+        Button btnWrite = (Button) findViewById(R.id.write_btn);
         btnWrite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -34,20 +34,20 @@ public class AllCommentActivity extends AppCompatActivity {
     }
 
     private void processIntent(Intent intent) {
-        if(intent != null) {
-            ArrayList<CommentItem> list = (ArrayList<CommentItem>)intent.getSerializableExtra("commentsList");
+        if (intent != null) {
+            ArrayList<CommentItem> list = (ArrayList<CommentItem>) intent.getSerializableExtra("commentsList");
             String title = intent.getStringExtra("title");
             String strRating = intent.getStringExtra("strRating");
-            float rating = intent.getFloatExtra("rating",0f);
+            float rating = intent.getFloatExtra("rating", 0f);
 
-            TextView tvTitle = (TextView)findViewById(R.id.tv_title);
-            TextView tvRating = (TextView)findViewById(R.id.tv_rating);
-            RatingBar ratingBar = (RatingBar)findViewById(R.id.ratingBar);
-            ListView listView = (ListView)findViewById(R.id.listView);
-            CommentAdapter adapter = new CommentAdapter(list,getApplicationContext());
+            TextView tvTitle = (TextView) findViewById(R.id.tv_title);
+            TextView tvRating = (TextView) findViewById(R.id.tv_rating);
+            RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar);
+            ListView listView = (ListView) findViewById(R.id.listView);
+            CommentAdapter adapter = new CommentAdapter(list, getApplicationContext());
 
             tvTitle.setText(title);
-            tvRating.setText(strRating+getString(R.string.all_comment_rating));
+            tvRating.setText(strRating + getString(R.string.all_comment_rating));
             ratingBar.setRating(rating);
             listView.setAdapter(adapter);
         }
@@ -56,7 +56,7 @@ public class AllCommentActivity extends AppCompatActivity {
 
     private void showCommentWriteActivity() {
         Intent intent = new Intent();
-        setResult(RESULT_OK,intent);
+        setResult(RESULT_OK, intent);
         finish();
     }
 }

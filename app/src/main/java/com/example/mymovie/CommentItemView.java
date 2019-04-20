@@ -30,14 +30,14 @@ public class CommentItemView extends LinearLayout {
 
     private void init(Context context) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.comment_item_view,this,true);
+        inflater.inflate(R.layout.comment_item_view, this, true);
 
-        idTxt = (TextView)findViewById(R.id.id_txt);
-        createTimeTxt = (TextView)findViewById(R.id.create_time_txt);
-        contentTxt = (TextView)findViewById(R.id.content_txt);
-        recommendationTxt = (TextView)findViewById(R.id.recommendation_txt);
+        idTxt = (TextView) findViewById(R.id.id_txt);
+        createTimeTxt = (TextView) findViewById(R.id.create_time_txt);
+        contentTxt = (TextView) findViewById(R.id.content_txt);
+        recommendationTxt = (TextView) findViewById(R.id.recommendation_txt);
 
-        commentRating = (RatingBar)findViewById(R.id.comment_rating);
+        commentRating = (RatingBar) findViewById(R.id.comment_rating);
 
     }
 
@@ -46,14 +46,15 @@ public class CommentItemView extends LinearLayout {
     }
 
     public void addCreateTime(int createTime, Context context) {
-        createTimeTxt.setText(createTime + context.getString(R.string.comment_item_create_time));    }
+        createTimeTxt.setText(createTime + context.getString(R.string.comment_item_create_time));
+    }
 
     public void addContent(String content) {
         contentTxt.setText(content);
     }
 
-    public void addRecommendation(int recommendation,Context context) {
-        recommendationTxt.setText(context.getString(R.string.comment_item_recommendation)+recommendation);
+    public void addRecommendation(int recommendation, Context context) {
+        recommendationTxt.setText(context.getString(R.string.comment_item_recommendation) + recommendation);
     }
 
     public void addCommentRating(float rating) {

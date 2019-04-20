@@ -26,7 +26,6 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginBottom="10dp"
                 android:src="@drawable/image11"
-
                 />
 
             <LinearLayout
@@ -389,7 +388,7 @@
                 android:textStyle="bold"
 
                 />
-            
+
             <ListView
                 android:id="@+id/listView"
                 android:layout_above="@+id/btn_allComments"

@@ -17,7 +17,6 @@ import android.widget.TextView;
 public class MoviePosterFragment extends Fragment {
 
     private FragmentCallback callback;
-    private Context context;
 
     private ImageView ivPoster;
     private TextView tvTitle, tvReserveRating, tvAudienceRating, tvOpening;
@@ -41,7 +40,6 @@ public class MoviePosterFragment extends Fragment {
             callback = (FragmentCallback) context;
         }
 
-        this.context = context;
     }
 
     @Nullable
@@ -49,33 +47,34 @@ public class MoviePosterFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_movie_poster, container, false);
 
-        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setTitle("영화 목록");
 
+        // 뷰 세팅
         ivPoster = (ImageView) rootView.findViewById(R.id.iv_poster);
         tvTitle = (TextView) rootView.findViewById(R.id.tv_title);
         tvReserveRating = (TextView) rootView.findViewById(R.id.tv_reserve_rating);
-        tvAudienceRating = (TextView)rootView.findViewById(R.id.tv_audience_rating);
+        tvAudienceRating = (TextView) rootView.findViewById(R.id.tv_audience_rating);
         tvOpening = (TextView) rootView.findViewById(R.id.tv_opening);
 
         ivPoster.setImageResource(movieInformItem.getImageId());
-        tvTitle.setText(String.valueOf(index+1) + "." + movieInformItem.getTitle());
+        tvTitle.setText(String.valueOf(index + 1) + "." + movieInformItem.getTitle());
         tvReserveRating.setText(movieInformItem.getReserveRating());
         tvAudienceRating.setText(movieInformItem.getAge());
         tvOpening.setText(movieInformItem.getOpening());
 
 
-        Button btnDetail = (Button)rootView.findViewById(R.id.btn_detail);
+        Button btnDetail = (Button) rootView.findViewById(R.id.btn_detail);
         btnDetail.setOnClickListener(new View.OnClickListener() {
 
-            // MoviePoster -> Main
+            // 상세보기 클릭시
             @Override
             public void onClick(View v) {
 
                 Bundle bundle = new Bundle();
-                bundle.putInt("index",index);
+                bundle.putInt("index", index);
                 bundle.putSerializable("movieItem", movieInformItem);
-                callback.onFragmentSelected(index,bundle);
+                callback.showMovieDetailFragment(index, bundle);
             }
         });
 
@@ -87,7 +86,7 @@ public class MoviePosterFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
 
-        if(callback != null) {
+        if (callback != null) {
             callback = null;
         }
     }

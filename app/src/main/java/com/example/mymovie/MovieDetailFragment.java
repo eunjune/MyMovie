@@ -22,11 +22,12 @@ import java.util.ArrayList;
 public class MovieDetailFragment extends Fragment {
 
     private FragmentCallback callback;
-    private Context context;
+    private ActionBar actionBar;
+
     private ViewGroup rootView;
 
     private TextView tvLikeCount, tvDislikeCount, tvTitle;
-    private ImageView ivLikeButton, ivDislikeButton,ivPoster,ivAge;
+    private ImageView ivLikeButton, ivDislikeButton, ivPoster, ivAge;
     private RatingBar ratingBar;
     private Button btnWrite, btnAllComments;
     private EditText etSummary;
@@ -51,16 +52,18 @@ public class MovieDetailFragment extends Fragment {
 
         index = args.getInt("index");
         movieInformItem = (MovieInformItem) args.getSerializable("movieItem");
-     }
+    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(context instanceof FragmentCallback) {
+        if (context instanceof FragmentCallback) {
             callback = (FragmentCallback) context;
         }
-        this.context = context;
+
+        actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+
     }
 
     @Nullable
@@ -68,8 +71,8 @@ public class MovieDetailFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = (ViewGroup) inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
-        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-        actionBar.setTitle("영화 상세");
+        actionBar.setTitle(getString(R.string.action_bar_movie_detail));
+
 
 
         // 좋아요 클릭시
@@ -100,6 +103,8 @@ public class MovieDetailFragment extends Fragment {
         // 리스트 뷰
         renderListView();
 
+
+        // 뷰 세팅
         tvTitle = (TextView) rootView.findViewById(R.id.tv_title);
         tvTitle.setText(movieInformItem.getTitle());
         etSummary = (EditText) rootView.findViewById(R.id.et_summary);
@@ -113,22 +118,20 @@ public class MovieDetailFragment extends Fragment {
         btnWrite = (Button) rootView.findViewById(R.id.write_btn);
         btnWrite.setOnClickListener(new View.OnClickListener() {
 
-            // MovieDetail -> Main
+            // 작성하기 클릭시
             @Override
             public void onClick(View v) {
-                MainActivity activity = (MainActivity)context;
 
-                activity.showCommentWriteActivity(tvTitle.getText().toString(),index);
+                callback.showCommentWriteActivity(tvTitle.getText().toString(), index);
             }
         });
 
         btnAllComments = (Button) rootView.findViewById(R.id.btn_allComments);
         btnAllComments.setOnClickListener(new View.OnClickListener() {
 
-            // MovieDetail -> Main
+            // 모두보기 클릭시
             @Override
             public void onClick(View v) {
-                MainActivity activity = (MainActivity)context;
 
                 ArrayList<CommentItem> list = commentAdapter.getItems();
 
@@ -138,7 +141,7 @@ public class MovieDetailFragment extends Fragment {
                 float rating = ratingBar.getRating();
                 String strRating = tvRating.getText().toString();
 
-                activity.showAllCommentActivity(list,title,rating,strRating,index);
+                callback.showAllCommentActivity(list, title, rating, strRating, index);
             }
         });
 
@@ -149,8 +152,7 @@ public class MovieDetailFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
 
-        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
-        actionBar.setTitle("영화 목록");
+        actionBar.setTitle(getString(R.string.action_bar_movie_list));
     }
 
     @Override
@@ -231,7 +233,7 @@ public class MovieDetailFragment extends Fragment {
                 , "즐길 수 있는 영화입니다."
                 , 30, 5, 5));
 
-        commentAdapter = new CommentAdapter(items, context);
+        commentAdapter = new CommentAdapter(items, (Context) callback);
         listView.setAdapter(commentAdapter);
     }
 

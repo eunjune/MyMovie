@@ -14,6 +14,8 @@ import java.util.ArrayList;
 public class AllCommentActivity extends AppCompatActivity {
     private TextView tvTitle;
 
+    private int index;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +42,7 @@ public class AllCommentActivity extends AppCompatActivity {
             String strRating = intent.getStringExtra("strRating");
             float rating = intent.getFloatExtra("rating", 0f);
 
-            TextView tvTitle = (TextView) findViewById(R.id.tv_title);
+            tvTitle = (TextView) findViewById(R.id.tv_title);
             TextView tvRating = (TextView) findViewById(R.id.tv_rating);
             RatingBar ratingBar = (RatingBar) findViewById(R.id.ratingBar);
             ListView listView = (ListView) findViewById(R.id.listView);
@@ -50,12 +52,16 @@ public class AllCommentActivity extends AppCompatActivity {
             tvRating.setText(strRating + getString(R.string.all_comment_rating));
             ratingBar.setRating(rating);
             listView.setAdapter(adapter);
+
+            index = intent.getIntExtra("index",-1);
         }
 
     }
 
     private void showCommentWriteActivity() {
         Intent intent = new Intent();
+        intent.putExtra("title",tvTitle.getText().toString());
+        intent.putExtra("index",index);
         setResult(RESULT_OK, intent);
         finish();
     }

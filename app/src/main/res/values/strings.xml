@@ -1,13 +1,19 @@
 <resources>
     <string name="app_name">시네마천국</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">iws1605</string>
+    <string name="nav_header_subtitle">iws1605@naver.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
 
     <string-array name="movie_title">
-        <item>1. 군도</item>
-        <item>2. 공조</item>
-        <item>3. 더 킹</item>
-        <item>4. 레지던트 이블</item>
-        <item>5. 럭키</item>
-        <item>6. 아수라</item>
+        <item>군도</item>
+        <item>공조</item>
+        <item>더 킹</item>
+        <item>레지던트 이블</item>
+        <item>럭키</item>
+        <item>아수라</item>
 
     </string-array>
 
@@ -97,7 +103,7 @@
         <item>12세 관람가</item>
         <item>15세 관람가</item>
         <item>12세 관람가</item>
-        <item>15세 관람가</item>
+        <item>19세 관람가</item>
 
     </string-array>
 

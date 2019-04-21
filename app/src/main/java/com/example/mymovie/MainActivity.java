@@ -2,83 +2,87 @@ package com.example.mymovie;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.RatingBar;
-import android.widget.TextView;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener, FragmentCallback{
     private final int MAIN_TO_COMMENT_WRITE = 101;
     private final int MAIN_TO_ALL_COMMENT = 102;
 
-    private TextView tvLikeCount, tvDislikeCount, tvTitle;
-    private ImageView ivLikeButton, ivDislikeButton;
-    private RatingBar ratingBar;
-    private Button btnWrite, btnAllComments;
+    private MoviePagerAdapter moviePagerAdapter;
 
-    private int likeCount;
-    private int dislikeCount;
-    private boolean likeState = false;
-    private boolean dislikeState = false;
+    private int[] posterDrawbles = {R.drawable.image1, R.drawable.image2, R.drawable.image3
+            , R.drawable.image4, R.drawable.image5, R.drawable.image6};
 
-    private CommentAdapter adapter;
-    //private ListView listView;
+    private int[] ageDrawbles = {R.drawable.ic_15, R.drawable.ic_12, R.drawable.ic_15
+            , R.drawable.ic_12, R.drawable.ic_15, R.drawable.ic_19};
 
+    private ArrayList<MovieInformItem> movieList = new ArrayList<>();
+    private ArrayList<MovieDetailFragment> detailFragments = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 좋아요 클릭시
-        tvLikeCount = (TextView) findViewById(R.id.tv_likeCount);
-        likeCount = Integer.valueOf(tvLikeCount.getText().toString());
+        // 바로 가기 메뉴
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
-        ivLikeButton = (ImageView) findViewById(R.id.btn_like);
-        ivLikeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clickLikeButton();
-            }
-        });
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
 
-        // 싫어요 클릭시
-        tvDislikeCount = (TextView) findViewById(R.id.tv_dislikeCount);
-        dislikeCount = Integer.valueOf(tvDislikeCount.getText().toString());
+        // 뷰 페이저
+        ViewPager pager = (ViewPager)findViewById(R.id.pager);
+        pager.setOffscreenPageLimit(5);
+        moviePagerAdapter = new MoviePagerAdapter(getSupportFragmentManager());
 
-        ivDislikeButton = (ImageView) findViewById(R.id.btn_dislike);
-        ivDislikeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                clickDislikeButton();
-            }
-        });
+        for(int i=0;i<6;i++) {
+            MovieInformItem movieInformItem = new MovieInformItem();
 
-        // 리스트 뷰
-        renderListView();
+            movieInformItem.setAgeId(ageDrawbles[i]);
+            movieInformItem.setImageId(posterDrawbles[i]);
+            movieInformItem.setOpening(getResources().getStringArray(R.array.movie_opening)[i]);
+            movieInformItem.setAge(getResources().getStringArray(R.array.movie_audience_rating)[i]);
+            movieInformItem.setReserveRating(getResources().getStringArray(R.array.movie_reserve_rate)[i]);
+            movieInformItem.setSummary(getResources().getStringArray(R.array.movie_summary)[i]);
+            movieInformItem.setTitle(getResources().getStringArray(R.array.movie_title)[i]);
 
-        tvTitle = (TextView) findViewById(R.id.tv_title);
-        ratingBar = (RatingBar) findViewById(R.id.ratingBar);
-        btnWrite = (Button) findViewById(R.id.write_btn);
-        btnWrite.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showCommentWriteActivity();
-            }
-        });
-        btnAllComments = (Button) findViewById(R.id.btn_allComments);
-        btnAllComments.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAllCommentActivity();
-            }
-        });
+            movieList.add(movieInformItem);
+
+            MoviePosterFragment moviePosterFragment = new MoviePosterFragment();
+            Bundle bundle = new Bundle();
+            bundle.putInt("index",i);
+            bundle.putSerializable("movieItem", movieList.get(i));
+            moviePosterFragment.setArguments(bundle);
+            moviePagerAdapter.addItem(moviePosterFragment);
+
+            MovieDetailFragment movieDetailFragment = new MovieDetailFragment();
+            detailFragments.add(movieDetailFragment);
+        }
+
+        pager.setAdapter(moviePagerAdapter);
     }
 
     @Override
@@ -89,120 +93,133 @@ public class MainActivity extends AppCompatActivity {
             if (requestCode == MAIN_TO_COMMENT_WRITE) {
                 String contents = intent.getStringExtra("contents");
                 float rating = intent.getFloatExtra("rating", 0f);
+                int index = intent.getIntExtra("index",-1);
 
-                adapter.getItems().add(new CommentItem("iws**"
+                MovieDetailFragment fragment = detailFragments.get(index);
+
+                fragment.getCommentAdapter().getItems().add(new CommentItem("iws**"
                         , contents
                         , 10, rating, 0));
             }
 
             if (requestCode == MAIN_TO_ALL_COMMENT && resultCode == RESULT_OK) {
-                showCommentWriteActivity();
+                String title = intent.getStringExtra("title");
+                int index = intent.getIntExtra("index",-1);
+
+                showCommentWriteActivity(title,index);
             }
         }
 
     }
 
-    private void clickLikeButton() {
-        if (likeState) {
-            likeCount--;
+    @Override
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
         } else {
-            if (dislikeState) {
-                dislikeCount--;
-                tvDislikeCount.setText(String.valueOf(dislikeCount));
-                dislikeState = !dislikeState;
-                ivDislikeButton.setSelected(dislikeState);
-            }
-            likeCount++;
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            return true;
         }
 
-        tvLikeCount.setText(String.valueOf(likeCount));
-        likeState = !likeState;
-        ivLikeButton.setSelected(likeState);
+        return super.onOptionsItemSelected(item);
     }
 
-    private void clickDislikeButton() {
-        if (dislikeState) {
-            dislikeCount--;
-        } else {
-            if (likeState) {
-                likeCount--;
-                tvLikeCount.setText(String.valueOf(likeCount));
-                likeState = !likeState;
-                ivLikeButton.setSelected(likeState);
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        // 바로가기 메뉴에서 영화 목록 클릭
+        if (id == R.id.nav_movie_list) {
+            FragmentManager manager = getSupportFragmentManager();
+            FragmentTransaction transaction = manager.beginTransaction();
+
+            Fragment fragment = manager.findFragmentById(R.id.container);
+
+            if(fragment instanceof MovieDetailFragment) {
+                transaction.remove(fragment);
+                transaction.commit();
             }
-            dislikeCount++;
         }
 
-        tvDislikeCount.setText(String.valueOf(dislikeCount));
-        dislikeState = !dislikeState;
-        ivDislikeButton.setSelected(dislikeState);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
-    private void renderListView() {
-        ArrayList<CommentItem> items = new ArrayList<>();
-        ListView listView = (ListView) findViewById(R.id.listView);
+    // 상세 정보 클릭
+    @Override
+    public void onFragmentSelected(int position, Bundle bundle) {
+         MovieDetailFragment movieDetailFragment = detailFragments.get(position);
+         movieDetailFragment.setArguments(bundle);
 
+         FragmentManager manager = getSupportFragmentManager();
+         FragmentTransaction transaction = manager.beginTransaction();
 
-        items.add(new CommentItem("kym71**"
-                , "적당히 재밌다. 오랜만에 잠 안오는 영화봤네요."
-                , 10, 5, 0));
+         transaction.addToBackStack(null);
+         transaction.add(R.id.container,movieDetailFragment);
 
-        items.add(new CommentItem("angel**"
-                , "웃긴 내용보다는 좀 더 진지한 영화."
-                , 15, 4.5f, 1));
-
-        items.add(new CommentItem("beaut**"
-                , "연기가 부족한 느낌이 드는 배우도 있다. 그래도 전체적으로는 재밌다."
-                , 16, 4.5f, 3));
-
-        items.add(new CommentItem("pargo**"
-                , "스트레스가 해소되는 영화네요."
-                , 19, 5, 0));
-
-        items.add(new CommentItem("memory**"
-                , "아무 생각없이 보면 되는 영화. 하지만 생각하면 안되는 영화."
-                , 22, 4.5f, 1));
-
-        items.add(new CommentItem("code2**"
-                , "적당히 웃기고 적당히 재밌었어요."
-                , 23, 5, 0));
-
-        items.add(new CommentItem("add11**"
-                , "요즘 제대로 만든 영화 없더니 잘 만들었습니다."
-                , 27, 3, 4));
-
-        items.add(new CommentItem("code2**"
-                , "즐길 수 있는 영화입니다."
-                , 30, 5, 5));
-
-        adapter = new CommentAdapter(items, getApplicationContext());
-        listView.setAdapter(adapter);
+         transaction.commit();
     }
 
-    private void showCommentWriteActivity() {
-        String title = tvTitle.getText().toString();
-
+    // 한줄평 작성
+    public void showCommentWriteActivity(String title,int index) {
         Intent intent = new Intent(getApplicationContext(), CommentWriteActivity.class);
         intent.putExtra("title", title);
+        intent.putExtra("index",index);
         startActivityForResult(intent, MAIN_TO_COMMENT_WRITE);
     }
 
-    private void showAllCommentActivity() {
-        ArrayList<CommentItem> list = adapter.getItems();
-
-        TextView tvRating = (TextView) findViewById(R.id.tv_rating);
-
-        String title = tvTitle.getText().toString();
-        float rating = ratingBar.getRating();
-        String strRating = tvRating.getText().toString();
-
+    // 한줄평 모두 보기
+    public void showAllCommentActivity(ArrayList<CommentItem> list, String title
+            , float rating, String strRating, int index) {
         Intent intent = new Intent(getApplicationContext(), AllCommentActivity.class);
         intent.putExtra("commentsList", list);
         intent.putExtra("title", title);
         intent.putExtra("rating", rating);
         intent.putExtra("strRating", strRating);
+        intent.putExtra("index",index);
 
         startActivityForResult(intent, MAIN_TO_ALL_COMMENT);
+    }
 
+
+    class MoviePagerAdapter extends FragmentStatePagerAdapter {
+        ArrayList<MoviePosterFragment> items = new ArrayList<>();
+
+        public MoviePagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        public void addItem(MoviePosterFragment item) {
+            items.add(item);
+        }
+
+        @Override
+        public MoviePosterFragment getItem(int position) {
+            return items.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return items.size();
+        }
     }
 }

@@ -9,12 +9,14 @@ import android.widget.EditText;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-public class CommentWriteActivity extends AppCompatActivity {
+public class CommentWriteActivity extends AppCompatActivity{
 
     private TextView tvTitle;
     private RatingBar ratingBar;
     private EditText etContents;
     private Button btnSave, btnCancel;
+
+    private int index;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,8 @@ public class CommentWriteActivity extends AppCompatActivity {
         if (intent != null) {
             String title = intent.getStringExtra("title");
             tvTitle.setText(title);
+
+            index = intent.getIntExtra("index",-1);
         }
 
     }
@@ -60,6 +64,7 @@ public class CommentWriteActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.putExtra("contents", contents);
         intent.putExtra("rating", rating);
+        intent.putExtra("index",index);
         setResult(RESULT_OK, intent);
         finish();
     }

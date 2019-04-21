@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,44 +14,43 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class MovieFragment extends Fragment {
+public class MoviePosterFragment extends Fragment {
 
     private FragmentCallback callback;
+    private Context context;
 
     private ImageView ivPoster;
     private TextView tvTitle, tvReserveRating, tvAudienceRating, tvOpening;
 
-    private int[] drawbles = {R.drawable.image1, R.drawable.image2, R.drawable.image3
-            , R.drawable.image4, R.drawable.image5, R.drawable.image6};
-    private String movieTitle, movieSummary, movieReserveRate, movieAudienceRating, movieOpening;
+
+    private MovieInformItem movieInformItem;
     private int index;
 
     @Override
     public void setArguments(@Nullable Bundle args) {
         super.setArguments(args);
         index = args.getInt("index");
+        movieInformItem = (MovieInformItem) args.getSerializable("movieItem");
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if(context instanceof FragmentCallback) {
+        if (context instanceof FragmentCallback) {
             callback = (FragmentCallback) context;
         }
 
+        this.context = context;
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_movie, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_movie_poster, container, false);
 
-        movieTitle = getResources().getStringArray(R.array.movie_title)[index];
-        movieSummary = getResources().getStringArray(R.array.movie_summary)[index];
-        movieReserveRate = getResources().getStringArray(R.array.movie_reserve_rate)[index];
-        movieAudienceRating = getResources().getStringArray(R.array.movie_audience_rating)[index];
-        movieOpening = getResources().getStringArray(R.array.movie_opening)[index];
+        ActionBar actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar.setTitle("영화 목록");
 
         ivPoster = (ImageView) rootView.findViewById(R.id.iv_poster);
         tvTitle = (TextView) rootView.findViewById(R.id.tv_title);
@@ -57,30 +58,30 @@ public class MovieFragment extends Fragment {
         tvAudienceRating = (TextView)rootView.findViewById(R.id.tv_audience_rating);
         tvOpening = (TextView) rootView.findViewById(R.id.tv_opening);
 
-        ivPoster.setImageResource(drawbles[index]);
-        tvTitle.setText(movieTitle);
-        tvReserveRating.setText(movieReserveRate);
-        tvAudienceRating.setText(movieAudienceRating);
-        tvOpening.setText(movieOpening);
+        ivPoster.setImageResource(movieInformItem.getImageId());
+        tvTitle.setText(String.valueOf(index+1) + "." + movieInformItem.getTitle());
+        tvReserveRating.setText(movieInformItem.getReserveRating());
+        tvAudienceRating.setText(movieInformItem.getAge());
+        tvOpening.setText(movieInformItem.getOpening());
 
 
         Button btnDetail = (Button)rootView.findViewById(R.id.btn_detail);
         btnDetail.setOnClickListener(new View.OnClickListener() {
+
+            // MoviePoster -> Main
             @Override
             public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putString("title", movieTitle);
-                bundle.putString("summary",movieSummary);
-                bundle.putString("reserveRating",movieReserveRate);
-                bundle.putString("audienceRating",movieAudienceRating);
-                bundle.putString("opening",movieOpening);
 
-                callback.onFragmentSelected(bundle);
+                Bundle bundle = new Bundle();
+                bundle.putInt("index",index);
+                bundle.putSerializable("movieItem", movieInformItem);
+                callback.onFragmentSelected(index,bundle);
             }
         });
 
         return rootView;
     }
+
 
     @Override
     public void onDetach() {

@@ -33,7 +33,7 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/tv_reserve_rating"
+            android:id="@+id/tv_reservation_rate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
@@ -49,28 +49,13 @@
             android:textSize="20dp" />
 
         <TextView
-            android:id="@+id/tv_audience_rating"
+            android:id="@+id/tv_grade"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="5dp"
             android:textColor="@android:color/background_light"
             android:textSize="20dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
-            android:text="|"
-            android:textColor="@android:color/background_light"
-            android:textSize="20dp" />
-
-        <TextView
-            android:id="@+id/tv_opening"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
-            android:textColor="@android:color/background_light"
-            android:textSize="20dp" />
 
     </LinearLayout>
 

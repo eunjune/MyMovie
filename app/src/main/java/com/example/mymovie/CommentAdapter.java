@@ -5,24 +5,37 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import com.example.mymovie.data.CommentInfo;
+
 import java.util.ArrayList;
 
 public class CommentAdapter extends BaseAdapter {
 
-    private ArrayList<CommentItem> items;
+    private ArrayList<CommentInfo> items;
     private Context context;
 
-    public CommentAdapter(ArrayList<CommentItem> items, Context context) {
+    private int total;
+
+    public CommentAdapter(ArrayList<CommentInfo> items, Context context) {
         this.items = items;
+
         this.context = context;
     }
 
-    public ArrayList<CommentItem> getItems() {
+    public ArrayList<CommentInfo> getItems() {
         return items;
     }
 
-    public void setItems(ArrayList<CommentItem> items) {
+    public void setItems(ArrayList<CommentInfo> items) {
         this.items = items;
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
     }
 
     @Override
@@ -50,11 +63,12 @@ public class CommentAdapter extends BaseAdapter {
             view = (CommentItemView) convertView;
         }
 
-        view.addId(items.get(position).getId());
+        view.setReviewId(items.get(position).getId());
+        view.addWriter(items.get(position).getWriter());
         view.addCommentRating(items.get(position).getRating());
-        view.addContent(items.get(position).getContent());
-        view.addCreateTime(items.get(position).getCreateTime(), context);
-        view.addRecommendation(items.get(position).getRecommendation(), context);
+        view.addContent(items.get(position).getContents());
+        view.addCreateTime(items.get(position).getTime().toString(), context);
+        view.addRecommendation(items.get(position).getRecommend(), context);
 
         return view;
     }

@@ -1,4 +1,4 @@
-package com.example.mymovie;
+package com.example.mymovie.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.mymovie.AppHelper;
+import com.example.mymovie.FragmentCallback;
+import com.example.mymovie.fragment.MovieDetailFragment;
+import com.example.mymovie.fragment.MoviePosterFragment;
+import com.example.mymovie.R;
+import com.example.mymovie.data.MovieDetailInfo;
+import com.example.mymovie.data.MovieInfo;
+import com.example.mymovie.data.MovieList;
+import com.example.mymovie.data.ResponseInfo;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
@@ -24,13 +41,7 @@ public class MainActivity extends AppCompatActivity
     private final int MAIN_TO_ALL_COMMENT = 102;
 
     private MoviePagerAdapter moviePagerAdapter;
-
-    private int[] posterDrawbles = {R.drawable.image1, R.drawable.image2, R.drawable.image3
-            , R.drawable.image4, R.drawable.image5, R.drawable.image6};
-
-    private int[] ageDrawbles = {R.drawable.ic_15, R.drawable.ic_12, R.drawable.ic_15
-            , R.drawable.ic_12, R.drawable.ic_15, R.drawable.ic_19};
-
+    private ArrayList<MovieInfo> movieList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,34 +62,12 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        // 뷰 페이저
-        ViewPager pager = (ViewPager) findViewById(R.id.pager);
-        pager.setOffscreenPageLimit(5);
-        moviePagerAdapter = new MoviePagerAdapter(getSupportFragmentManager());
-
-        for (int i = 0; i < 6; i++) {
-            MovieInformItem movieInformItem = new MovieInformItem();
-
-            movieInformItem.setAgeId(ageDrawbles[i]);
-            movieInformItem.setImageId(posterDrawbles[i]);
-            movieInformItem.setOpening(getResources().getStringArray(R.array.movie_opening)[i]);
-            movieInformItem.setAge(getResources().getStringArray(R.array.movie_audience_rating)[i]);
-            movieInformItem.setReserveRating(getResources().getStringArray(R.array.movie_reserve_rate)[i]);
-            movieInformItem.setSummary(getResources().getStringArray(R.array.movie_summary)[i]);
-            movieInformItem.setTitle(getResources().getStringArray(R.array.movie_title)[i]);
-
-            MoviePosterFragment moviePosterFragment = new MoviePosterFragment();
-            Bundle bundle = new Bundle();
-            bundle.putInt("index", i);
-            bundle.putSerializable("movieItem", movieInformItem);
-            moviePosterFragment.setArguments(bundle);
-            moviePagerAdapter.addMoviePosterItem(moviePosterFragment);
-
-            MovieDetailFragment movieDetailFragment = new MovieDetailFragment();
-            moviePagerAdapter.addMovieDetailItem(movieDetailFragment);
+        // 영화 목록 요청
+        if(AppHelper.requestQueue == null) {
+            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
 
-        pager.setAdapter(moviePagerAdapter);
+        readMovieList();
     }
 
     @Override
@@ -86,25 +75,9 @@ public class MainActivity extends AppCompatActivity
         super.onActivityResult(requestCode, resultCode, intent);
 
         if (intent != null) {
-            // 한줄평에서 작성 버튼 클릭
-            if (requestCode == MAIN_TO_COMMENT_WRITE) {
-                String contents = intent.getStringExtra("contents");
-                float rating = intent.getFloatExtra("rating", 0f);
-                int index = intent.getIntExtra("index", -1);
-
-                MovieDetailFragment fragment = moviePagerAdapter.getMovieDetailItem(index);
-
-                fragment.getCommentAdapter().getItems().add(new CommentItem("iws**"
-                        , contents
-                        , 10, rating, 0));
-            }
-
-            //한줄평에서 취소 버튼 클릭
-            if (requestCode == MAIN_TO_ALL_COMMENT && resultCode == RESULT_OK) {
-                String title = intent.getStringExtra("title");
-                int index = intent.getIntExtra("index", -1);
-
-                showCommentWriteActivity(title, index);
+            // 한줄평 모두 보기에서 한줄평 작성 버튼 클릭
+            if (resultCode == RESULT_OK) {
+                showCommentWriteActivity((MovieDetailInfo) intent.getSerializableExtra("movieDetailInfo"));
             }
         }
 
@@ -178,31 +151,77 @@ public class MainActivity extends AppCompatActivity
     }
 
     // 한줄평 작성
-    public void showCommentWriteActivity(String title, int index) {
+    public void showCommentWriteActivity(MovieDetailInfo movieDetailInfo) {
         Intent intent = new Intent(getApplicationContext(), CommentWriteActivity.class);
-        intent.putExtra("title", title);
-        intent.putExtra("index", index);
+        intent.putExtra("movieDetailInfo",movieDetailInfo);
         startActivityForResult(intent, MAIN_TO_COMMENT_WRITE);
     }
 
-    // 한줄평 모두 보기
-    public void showAllCommentActivity(ArrayList<CommentItem> list, String title
-            , float rating, String strRating, int index) {
-        Intent intent = new Intent(getApplicationContext(), AllCommentActivity.class);
-        intent.putExtra("commentsList", list);
-        intent.putExtra("title", title);
-        intent.putExtra("rating", rating);
-        intent.putExtra("strRating", strRating);
-        intent.putExtra("index", index);
 
-        startActivityForResult(intent, MAIN_TO_ALL_COMMENT);
+
+    public void readMovieList() {
+        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/readMovieList";
+        url += "?" + "type=1";
+
+        StringRequest request = new StringRequest(
+                Request.Method.GET,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        processResponse(response);
+                        renderViewPager();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+        );
+
+        request.setShouldCache(false);
+        AppHelper.requestQueue.add(request);
+
+    }
+
+    private void processResponse(String response) {
+        Gson gson = new Gson();
+
+        ResponseInfo responseInfo = gson.fromJson(response, ResponseInfo.class);
+        if(responseInfo.code == 200) {
+            movieList = gson.fromJson(response,MovieList.class).result;
+        }
+
+    }
+
+    public void renderViewPager() {
+        // 뷰 페이저
+        ViewPager pager = (ViewPager) findViewById(R.id.pager);
+        pager.setOffscreenPageLimit(movieList.size());
+        moviePagerAdapter = new MoviePagerAdapter(getSupportFragmentManager());
+
+        for (int i=0; i<movieList.size(); i++) {
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("movieItem", movieList.get(i));
+            bundle.putInt("index",i);
+
+            MoviePosterFragment moviePosterFragment = new MoviePosterFragment();
+            moviePosterFragment.setArguments(bundle);
+            moviePagerAdapter.addMoviePosterItem(moviePosterFragment);
+
+            MovieDetailFragment movieDetailFragment = new MovieDetailFragment();
+            moviePagerAdapter.addMovieDetailItem(movieDetailFragment);
+        }
+
+        pager.setAdapter(moviePagerAdapter);
     }
 
 
     class MoviePagerAdapter extends FragmentStatePagerAdapter {
         ArrayList<MoviePosterFragment> moviePosterItems = new ArrayList<>();
         ArrayList<MovieDetailFragment> movieDetailItems = new ArrayList<>();
-
 
         public MoviePagerAdapter(FragmentManager fm) {
             super(fm);
@@ -229,7 +248,6 @@ public class MainActivity extends AppCompatActivity
         public int getCount() {
             return moviePosterItems.size();
         }
-
 
     }
 }

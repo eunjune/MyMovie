@@ -2,11 +2,9 @@ package com.example.mymovie;
 
 import android.os.Bundle;
 
-import java.util.ArrayList;
+import com.example.mymovie.data.MovieDetailInfo;
 
 public interface FragmentCallback {
     void showMovieDetailFragment(int position, Bundle bundle);
-    void showCommentWriteActivity(String title,int index);
-    void showAllCommentActivity(ArrayList<CommentItem> list, String title
-            , float rating, String strRating, int index);
+    void showCommentWriteActivity(MovieDetailInfo movieDetailInfo);
 }

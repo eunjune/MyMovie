@@ -26,8 +26,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="20dp"
-                android:layout_marginBottom="10dp"
-                android:src="@drawable/image11" />
+                android:layout_marginBottom="10dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -38,7 +37,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
 
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="20dp"
                     android:layout_marginBottom="10dp"
                     android:orientation="horizontal">
 
@@ -46,7 +45,6 @@
                         android:id="@+id/tv_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="군도"
                         android:textColor="@android:color/background_light"
                         android:textSize="24dp"
                         android:textStyle="bold" />
@@ -56,26 +54,43 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
-                        android:src="@drawable/ic_15"
                         android:textColor="@android:color/background_light" />
 
                 </LinearLayout>
 
                 <TextView
+                    android:id="@+id/tv_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2014.07.23 개봉"
                     android:textColor="@android:color/background_light"
 
                     />
-
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="액션 / 137분"
-                    android:textColor="@android:color/background_light"
+                    android:orientation="horizontal">
 
-                    />
+                    <TextView
+                        android:id="@+id/tv_genre"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/background_light"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" / "
+                        android:textColor="@android:color/background_light"
+                        />
+
+                    <TextView
+                        android:id="@+id/tv_duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/background_light"/>
+                </LinearLayout>
+
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -96,7 +111,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
-                        android:text="15"
                         android:textColor="@android:color/background_light"
 
                         />
@@ -115,7 +129,6 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
-                        android:text="1"
                         android:textColor="@android:color/background_light"
 
                         />
@@ -150,13 +163,29 @@
                     android:textSize="20dp"
                     android:textStyle="bold" />
 
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="5위 1.8%"
-                    android:textSize="15dp"
-                    android:textStyle="bold" />
+                    android:orientation="horizontal"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/tv_reservation_grade"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="15dp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_reservation_rate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textSize="15dp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
 
             </LinearLayout>
 
@@ -190,15 +219,12 @@
                         android:layout_height="wrap_content"
                         android:isIndicator="false"
                         android:numStars="5"
-                        android:rating="4.2"
-                        android:stepSize="0.1" />
-
+                        android:stepSize="0.1"/>
                     <TextView
                         android:id="@+id/tv_rating"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
-                        android:text="8.2"
                         android:textSize="15dp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -225,10 +251,10 @@
                     />
 
                 <TextView
+                    android:id="@+id/tv_audience"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="839,399명"
                     android:textSize="15dp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -264,13 +290,12 @@
                 android:textStyle="bold" />
 
             <EditText
-                android:id="@+id/et_summary"
+                android:id="@+id/et_synopsis"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@null"
                 android:focusableInTouchMode="false"
-                android:inputType="textMultiLine"
-                android:text="@string/summary" />
+                android:inputType="textMultiLine" />
 
         </LinearLayout>
 
@@ -307,6 +332,7 @@
                 android:orientation="horizontal">
 
                 <TextView
+
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="감독"
@@ -314,10 +340,10 @@
                     android:textSize="15dp" />
 
                 <TextView
+                    android:id="@+id/tv_director"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
-                    android:text="윤종빈"
                     android:textSize="15dp" />
 
             </LinearLayout>
@@ -336,10 +362,10 @@
                     android:textSize="15dp" />
 
                 <TextView
+                    android:id="@+id/tv_actor"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
-                    android:text="하정우(도치), 강동원(조윤)"
                     android:textSize="15dp" />
             </LinearLayout>
 

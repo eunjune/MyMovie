@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".AllCommentActivity">
+    tools:context=".activity.AllCommentActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,10 +24,10 @@
             android:textSize="24dp" />
 
         <ImageView
+            android:id="@+id/iv_age"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:src="@drawable/ic_15" />
+            android:layout_margin="10dp" />
 
     </LinearLayout>
 
@@ -48,10 +48,14 @@
             android:stepSize="0.1" />
 
         <TextView
-            android:id="@+id/tv_rating"
+        android:id="@+id/tv_rating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tv_total"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="(1,142명 참여)" />
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
     <LinearLayout

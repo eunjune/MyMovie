@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".CommentWriteActivity">
+    tools:context=".activity.CommentWriteActivity">
 
 
     <LinearLayout
@@ -23,10 +23,10 @@
             android:textSize="24dp" />
 
         <ImageView
+            android:id="@+id/iv_age"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:src="@drawable/ic_15" />
+            android:layout_margin="10dp" />
 
     </LinearLayout>
 

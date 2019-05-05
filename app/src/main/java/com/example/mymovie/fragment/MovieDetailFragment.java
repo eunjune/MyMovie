@@ -26,10 +26,10 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mymovie.AppHelper;
 import com.example.mymovie.CommentAdapter;
-import com.example.mymovie.FragmentCallback;
 import com.example.mymovie.ImageLoadTask;
 import com.example.mymovie.R;
 import com.example.mymovie.activity.AllCommentActivity;
+import com.example.mymovie.activity.CommentWriteActivity;
 import com.example.mymovie.data.CommentInfo;
 import com.example.mymovie.data.CommentList;
 import com.example.mymovie.data.MovieDetailInfo;
@@ -38,19 +38,13 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
-public class MovieDetailFragment extends Fragment {
+public class MovieDetailFragment extends Fragment{
 
-    private final int MAIN_TO_ALL_COMMENT = 102;
-
-    private FragmentCallback callback;
     private ActionBar actionBar;
-
     private ViewGroup rootView;
-
     private TextView tvLikeCount, tvDislikeCount, tvTitle, tvRating,
                         tvDate,tvGenre,tvDuration,tvReservationGrade,tvReservationRate,
                         tvAudience, tvDirector, tvActor;
-
     private ImageView ivLikeButton, ivDislikeButton, ivPoster, ivAge;
     private RatingBar ratingBar;
     private Button btnWrite, btnAllComments;
@@ -60,7 +54,7 @@ public class MovieDetailFragment extends Fragment {
     private int dislikeCount;
     private boolean likeState = false;
     private boolean dislikeState = false;
-
+    private int index;
 
 
     private CommentAdapter commentAdapter;
@@ -72,15 +66,12 @@ public class MovieDetailFragment extends Fragment {
         super.setArguments(args);
 
         movieDetailInfo = (MovieDetailInfo) args.getSerializable("movieDetailInfo");
-    }
+        index = args.getInt("index");
+}
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
-        if (context instanceof FragmentCallback) {
-            callback = (FragmentCallback) context;
-        }
 
         actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
     }
@@ -169,7 +160,7 @@ public class MovieDetailFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                callback.showCommentWriteActivity(movieDetailInfo);
+                showCommentWriteActivity(movieDetailInfo);
             }
         });
 
@@ -183,19 +174,14 @@ public class MovieDetailFragment extends Fragment {
             }
         });
 
-        return rootView;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
         // 한줄평 리스트 불러오기
         if(AppHelper.requestQueue == null) {
             AppHelper.requestQueue = Volley.newRequestQueue(getContext());
         }
 
         readCommentList(movieDetailInfo.getId());
+
+        return rootView;
     }
 
     @Override
@@ -352,13 +338,20 @@ public class MovieDetailFragment extends Fragment {
 
 
         if(responseInfo.code == 200) {
-            ArrayList<CommentInfo> items = gson.fromJson(response, CommentList.class).result;
+            ArrayList<CommentInfo> items = gson.fromJson(response, CommentList.class).getResult();
             ListView listView = (ListView) rootView.findViewById(R.id.listView);
 
-            commentAdapter = new CommentAdapter(items, (Context) callback);
+            commentAdapter = new CommentAdapter(items, getContext());
             commentAdapter.setTotal(responseInfo.totalCount);
             listView.setAdapter(commentAdapter);
         }
+    }
+
+    // 한줄평 작성
+    public void showCommentWriteActivity(MovieDetailInfo movieDetailInfo) {
+        Intent intent = new Intent(getActivity().getApplicationContext(), CommentWriteActivity.class);
+        intent.putExtra("movieDetailInfo",movieDetailInfo);
+        startActivity(intent);
     }
 
     // 한줄평 모두 보기
@@ -368,7 +361,8 @@ public class MovieDetailFragment extends Fragment {
         intent.putExtra("commentList", commentAdapter.getItems());
         intent.putExtra("movieDetailInfo", movieDetailInfo);
         intent.putExtra("total",commentAdapter.getTotal());
+        intent.putExtra("index",index);
 
-        startActivityForResult(intent, MAIN_TO_ALL_COMMENT);
+        startActivityForResult(intent,101);
     }
 }

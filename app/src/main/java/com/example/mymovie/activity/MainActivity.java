@@ -23,7 +23,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mymovie.AppHelper;
-import com.example.mymovie.FragmentCallback;
 import com.example.mymovie.fragment.MovieDetailFragment;
 import com.example.mymovie.fragment.MoviePosterFragment;
 import com.example.mymovie.R;
@@ -36,9 +35,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, FragmentCallback {
-    private final int MAIN_TO_COMMENT_WRITE = 101;
-    private final int MAIN_TO_ALL_COMMENT = 102;
+        implements NavigationView.OnNavigationItemSelectedListener {
 
     private MoviePagerAdapter moviePagerAdapter;
     private ArrayList<MovieInfo> movieList = new ArrayList<>();
@@ -73,15 +70,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-
-        if (intent != null) {
-            // 한줄평 모두 보기에서 한줄평 작성 버튼 클릭
-            if (resultCode == RESULT_OK) {
-                showCommentWriteActivity((MovieDetailInfo) intent.getSerializableExtra("movieDetailInfo"));
-            }
+        // 한줄평 모두 보기에서 한줄평 작성 버튼 클릭
+        MovieDetailInfo movieDetailInfo = (MovieDetailInfo)intent.getSerializableExtra("movieDetailInfo");
+        int index = intent.getIntExtra("index",-1);
+        if (resultCode == RESULT_OK) {
+            moviePagerAdapter.moviePosterItems.get(index).getMovieDetailFragment().showCommentWriteActivity(movieDetailInfo);
         }
-
     }
+
+
 
     @Override
     public void onBackPressed() {
@@ -135,30 +132,6 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    // 영화 상세 정보
-    @Override
-    public void showMovieDetailFragment(int position, Bundle bundle) {
-        MovieDetailFragment movieDetailFragment = moviePagerAdapter.getMovieDetailItem(position);
-        movieDetailFragment.setArguments(bundle);
-
-        FragmentManager manager = getSupportFragmentManager();
-        FragmentTransaction transaction = manager.beginTransaction();
-
-        transaction.addToBackStack(null);
-        transaction.add(R.id.container, movieDetailFragment);
-
-        transaction.commit();
-    }
-
-    // 한줄평 작성
-    public void showCommentWriteActivity(MovieDetailInfo movieDetailInfo) {
-        Intent intent = new Intent(getApplicationContext(), CommentWriteActivity.class);
-        intent.putExtra("movieDetailInfo",movieDetailInfo);
-        startActivityForResult(intent, MAIN_TO_COMMENT_WRITE);
-    }
-
-
-
     public void readMovieList() {
         String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/readMovieList";
         url += "?" + "type=1";
@@ -191,7 +164,7 @@ public class MainActivity extends AppCompatActivity
 
         ResponseInfo responseInfo = gson.fromJson(response, ResponseInfo.class);
         if(responseInfo.code == 200) {
-            movieList = gson.fromJson(response,MovieList.class).result;
+            movieList = gson.fromJson(response,MovieList.class).getResult();
         }
 
     }
@@ -211,8 +184,6 @@ public class MainActivity extends AppCompatActivity
             moviePosterFragment.setArguments(bundle);
             moviePagerAdapter.addMoviePosterItem(moviePosterFragment);
 
-            MovieDetailFragment movieDetailFragment = new MovieDetailFragment();
-            moviePagerAdapter.addMovieDetailItem(movieDetailFragment);
         }
 
         pager.setAdapter(moviePagerAdapter);
@@ -221,7 +192,6 @@ public class MainActivity extends AppCompatActivity
 
     class MoviePagerAdapter extends FragmentStatePagerAdapter {
         ArrayList<MoviePosterFragment> moviePosterItems = new ArrayList<>();
-        ArrayList<MovieDetailFragment> movieDetailItems = new ArrayList<>();
 
         public MoviePagerAdapter(FragmentManager fm) {
             super(fm);
@@ -229,14 +199,6 @@ public class MainActivity extends AppCompatActivity
 
         public void addMoviePosterItem(MoviePosterFragment item) {
             moviePosterItems.add(item);
-        }
-
-        public void addMovieDetailItem(MovieDetailFragment detailFragment) {
-            movieDetailItems.add(detailFragment);
-        }
-
-        public MovieDetailFragment getMovieDetailItem(int position) {
-            return movieDetailItems.get(position);
         }
 
         @Override

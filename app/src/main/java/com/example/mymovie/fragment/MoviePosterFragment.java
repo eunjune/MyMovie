@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -21,7 +23,6 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.mymovie.AppHelper;
-import com.example.mymovie.FragmentCallback;
 import com.example.mymovie.ImageLoadTask;
 import com.example.mymovie.R;
 import com.example.mymovie.data.MovieDetailInfo;
@@ -32,14 +33,17 @@ import com.google.gson.Gson;
 
 public class MoviePosterFragment extends Fragment {
 
-    private FragmentCallback callback;
-
+    private MovieDetailFragment movieDetailFragment;
     private ImageView ivPoster;
-    private TextView tvTitle, tvReservationRate, tvGrade, tvOpening;
+    private TextView tvTitle, tvReservationRate, tvGrade;
 
 
     private MovieInfo movieInfo;
     private int index;
+
+    public MovieDetailFragment getMovieDetailFragment() {
+        return movieDetailFragment;
+    }
 
     @Override
     public void setArguments(@Nullable Bundle args) {
@@ -52,10 +56,7 @@ public class MoviePosterFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if (context instanceof FragmentCallback) {
-            callback = (FragmentCallback) context;
-        }
-
+        movieDetailFragment = new MovieDetailFragment();
     }
 
     @Nullable
@@ -101,15 +102,6 @@ public class MoviePosterFragment extends Fragment {
         return rootView;
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        if (callback != null) {
-            callback = null;
-        }
-    }
-
     public void readMovie(String name) {
         String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/readMovie";
         url += "?" + "name=" + name;
@@ -125,7 +117,8 @@ public class MoviePosterFragment extends Fragment {
                         if(movieDetailInfo != null) {
                             Bundle bundle = new Bundle();
                             bundle.putSerializable("movieDetailInfo", movieDetailInfo);
-                            callback.showMovieDetailFragment(index, bundle);
+                            bundle.putInt("index",index);
+                            showMovieDetailFragment(bundle);
                         }
                     }
                 },
@@ -147,9 +140,23 @@ public class MoviePosterFragment extends Fragment {
 
         ResponseInfo responseInfo = gson.fromJson(response, ResponseInfo.class);
         if(responseInfo.code == 200) {
-            return gson.fromJson(response, MovieDetailList.class).result.get(0);
+            return gson.fromJson(response, MovieDetailList.class).getMovieDetailInfo(0);
         }
         return null;
+    }
+
+    // 영화 상세 정보
+    public void showMovieDetailFragment(Bundle bundle) {
+
+        movieDetailFragment.setArguments(bundle);
+
+        FragmentManager manager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+
+        transaction.addToBackStack(null);
+        transaction.add(R.id.container, movieDetailFragment);
+
+        transaction.commit();
     }
 
 }

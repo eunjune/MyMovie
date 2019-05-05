@@ -25,6 +25,8 @@ public class AllCommentActivity extends AppCompatActivity {
     private ArrayList<CommentInfo> commentList;
     private MovieDetailInfo movieDetailInfo;
 
+    private int index;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +58,7 @@ public class AllCommentActivity extends AppCompatActivity {
         if (intent != null) {
             commentList = (ArrayList<CommentInfo>) intent.getSerializableExtra("commentList");
             movieDetailInfo = (MovieDetailInfo)intent.getSerializableExtra("movieDetailInfo");
+            index = intent.getIntExtra("index",-1);
 
             tvTitle = (TextView) findViewById(R.id.tv_title);
             tvTitle.setText(movieDetailInfo.getTitle());
@@ -85,6 +88,7 @@ public class AllCommentActivity extends AppCompatActivity {
     private void showCommentWriteActivity() {
         Intent intent = new Intent();
         intent.putExtra("movieDetailInfo",movieDetailInfo);
+        intent.putExtra("index",index);
         setResult(RESULT_OK, intent);
         finish();
     }

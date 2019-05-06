@@ -5,5 +5,5 @@ public class ResponseInfo {
     public int code;
     public String resultType;
     public int totalCount;
-    //public String result;
+    //public ArrayList<Object> result;
 }

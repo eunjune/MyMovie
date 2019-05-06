@@ -42,7 +42,6 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
             e.printStackTrace();
         }
 
-
         return bitmap;
     }
 

@@ -18,25 +18,23 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.example.mymovie.AppHelper;
 import com.example.mymovie.ImageLoadTask;
+import com.example.mymovie.MyFunction;
+import com.example.mymovie.NetworkManager;
 import com.example.mymovie.R;
 import com.example.mymovie.data.MovieDetailInfo;
 import com.example.mymovie.data.MovieDetailList;
 import com.example.mymovie.data.MovieInfo;
+import com.example.mymovie.data.ProtocolObj;
 import com.example.mymovie.data.ResponseInfo;
-import com.google.gson.Gson;
 
 public class MoviePosterFragment extends Fragment {
+
+    private NetworkManager networkManager;
 
     private MovieDetailFragment movieDetailFragment;
     private ImageView ivPoster;
     private TextView tvTitle, tvReservationRate, tvGrade;
-
 
     private MovieInfo movieInfo;
     private int index;
@@ -64,6 +62,8 @@ public class MoviePosterFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_movie_poster, container, false);
 
+        networkManager = new NetworkManager(getContext());
+
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.setTitle("영화 목록");
 
@@ -90,60 +90,47 @@ public class MoviePosterFragment extends Fragment {
             // 상세보기 클릭시
             @Override
             public void onClick(View v) {
+                final ProtocolObj protocolObj = new ProtocolObj();
+                protocolObj.setUrl("readMovie");
+                protocolObj.setRequestType(Request.Method.GET);
+                protocolObj.setParam("name",movieInfo.getTitle());
+                protocolObj.setResponseClass(MovieDetailList.class);
 
-                if(AppHelper.requestQueue == null) {
-                    AppHelper.requestQueue = Volley.newRequestQueue(getContext());
-                }
+                MyFunction myFunction = new MyFunction() {
+                    @Override
+                    public void myMethod(String response) {
 
-                readMovie(movieInfo.getTitle());
+                        ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
+
+                        if(responseInfo.code == 200) {
+                            MovieDetailList movieDetailList = (MovieDetailList) protocolObj
+                                    .getResponseClass(response);
+                            MovieDetailInfo movieDetailInfo = movieDetailList.getMovieDetailInfo(0);
+
+                            if(movieDetailInfo != null) {
+                                Bundle bundle = new Bundle();
+                                bundle.putSerializable("movieDetailInfo", movieDetailInfo);
+                                bundle.putInt("index",index);
+                                showMovieDetailFragment(bundle);
+                            }
+                        } else if(responseInfo.code == 400) {
+                            String message = "작성 실패";
+                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                        } else {
+                            String message = "알 수 없는 오류";
+                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                };
+
+                networkManager.request(protocolObj,getContext(),myFunction);
+                //readMovie(movieInfo.getTitle());
             }
         });
 
         return rootView;
     }
 
-    public void readMovie(String name) {
-        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/readMovie";
-        url += "?" + "name=" + name;
-
-        StringRequest request = new StringRequest(
-                Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        MovieDetailInfo movieDetailInfo = processResponse(response);
-
-                        if(movieDetailInfo != null) {
-                            Bundle bundle = new Bundle();
-                            bundle.putSerializable("movieDetailInfo", movieDetailInfo);
-                            bundle.putInt("index",index);
-                            showMovieDetailFragment(bundle);
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                }
-        );
-
-        request.setShouldCache(false);
-        AppHelper.requestQueue.add(request);
-
-    }
-
-    private MovieDetailInfo processResponse(String response) {
-        Gson gson = new Gson();
-
-        ResponseInfo responseInfo = gson.fromJson(response, ResponseInfo.class);
-        if(responseInfo.code == 200) {
-            return gson.fromJson(response, MovieDetailList.class).getMovieDetailInfo(0);
-        }
-        return null;
-    }
 
     // 영화 상세 정보
     public void showMovieDetailFragment(Bundle bundle) {

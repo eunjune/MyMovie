@@ -12,17 +12,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.example.mymovie.AppHelper;
+import com.example.mymovie.MyFunction;
+import com.example.mymovie.NetworkManager;
 import com.example.mymovie.R;
 import com.example.mymovie.data.MovieDetailInfo;
+import com.example.mymovie.data.ProtocolObj;
 import com.example.mymovie.data.ResponseInfo;
-import com.google.gson.Gson;
 
 public class CommentWriteActivity extends AppCompatActivity{
+
+    private NetworkManager networkManager;
 
     private TextView tvTitle;
     private ImageView ivAge;
@@ -36,6 +35,8 @@ public class CommentWriteActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comment_write);
+
+        networkManager = new NetworkManager(getApplicationContext());
 
         Intent intent = getIntent();
         movieDetailInfo = (MovieDetailInfo) intent.getSerializableExtra("movieDetailInfo");
@@ -51,11 +52,35 @@ public class CommentWriteActivity extends AppCompatActivity{
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(AppHelper.requestQueue == null) {
-                    AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
-                }
 
-                createComment();
+                final ProtocolObj protocolObj = new ProtocolObj();
+                protocolObj.setUrl("createComment");
+                protocolObj.setRequestType(Request.Method.GET);
+                protocolObj.setParam("id",String.valueOf(movieDetailInfo.getId()));
+                protocolObj.setParam("writer","kym7112");
+                protocolObj.setParam("time",movieDetailInfo.getDate());
+                protocolObj.setParam("rating",String.valueOf(ratingBar.getRating()));
+                protocolObj.setParam("contents",etContents.getText().toString());
+
+                MyFunction myFunction = new MyFunction() {
+                    @Override
+                    public void myMethod(String response) {
+
+                        ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
+
+                        if(responseInfo.code == 200) {
+                            finish();
+                        } else if(responseInfo.code == 400) {
+                            String message = "작성 실패";
+                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                        } else {
+                            String message = "알 수 없는 오류";
+                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                };
+
+                networkManager.request(protocolObj,getApplicationContext(),myFunction);
             }
         });
 
@@ -67,49 +92,4 @@ public class CommentWriteActivity extends AppCompatActivity{
             }
         });
     }
-
-    private void createComment() {
-        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/createComment";
-        url += "?" + "id=" + movieDetailInfo.getId()
-        + "&writer=kym7112"
-        + "&time=" + movieDetailInfo.getDate()
-        + "&rating=" + ratingBar.getRating()
-        + "&contents=" + etContents.getText();
-
-        StringRequest request = new StringRequest(
-                Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Gson gson = new Gson();
-
-                        int status = gson.fromJson(response, ResponseInfo.class).code;
-
-                        if(status == 200) {
-                            finish();
-                        } else if(status == 400) {
-                            String message = "작성 실패";
-                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                        } else {
-                            String message = "알 수 없는 오류";
-                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                        }
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                }
-        );
-
-        request.setShouldCache(false);
-        AppHelper.requestQueue.add(request);
-
-    }
-
-
 }

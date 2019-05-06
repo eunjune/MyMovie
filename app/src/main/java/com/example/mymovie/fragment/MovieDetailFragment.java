@@ -20,25 +20,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.example.mymovie.AppHelper;
 import com.example.mymovie.CommentAdapter;
 import com.example.mymovie.ImageLoadTask;
+import com.example.mymovie.MyFunction;
+import com.example.mymovie.NetworkManager;
 import com.example.mymovie.R;
 import com.example.mymovie.activity.AllCommentActivity;
 import com.example.mymovie.activity.CommentWriteActivity;
 import com.example.mymovie.data.CommentInfo;
 import com.example.mymovie.data.CommentList;
 import com.example.mymovie.data.MovieDetailInfo;
+import com.example.mymovie.data.ProtocolObj;
 import com.example.mymovie.data.ResponseInfo;
-import com.google.gson.Gson;
 
 import java.util.ArrayList;
 
 public class MovieDetailFragment extends Fragment{
+
+    private NetworkManager networkManager;
 
     private ActionBar actionBar;
     private ViewGroup rootView;
@@ -80,6 +79,8 @@ public class MovieDetailFragment extends Fragment{
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         rootView = (ViewGroup) inflater.inflate(R.layout.fragment_movie_detail, container, false);
+
+        networkManager = new NetworkManager(getContext());
 
         actionBar.setTitle(getString(R.string.action_bar_movie_detail));
 
@@ -175,11 +176,37 @@ public class MovieDetailFragment extends Fragment{
         });
 
         // 한줄평 리스트 불러오기
-        if(AppHelper.requestQueue == null) {
-            AppHelper.requestQueue = Volley.newRequestQueue(getContext());
-        }
+        final ProtocolObj protocolObj = new ProtocolObj();
+        protocolObj.setUrl("readCommentList");
+        protocolObj.setRequestType(Request.Method.GET);
+        protocolObj.setParam("id",String.valueOf(movieDetailInfo.getId()));
+        protocolObj.setResponseClass(CommentList.class);
 
-        readCommentList(movieDetailInfo.getId());
+        MyFunction myFunction = new MyFunction() {
+            @Override
+            public void myMethod(String response) {
+
+                ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
+
+                if(responseInfo.code == 200) {
+                    CommentList list = (CommentList) protocolObj.getResponseClass(response);
+                    ArrayList<CommentInfo> items = list.getResult();
+                    ListView listView = (ListView) rootView.findViewById(R.id.listView);
+
+                    commentAdapter = new CommentAdapter(items, getContext());
+                    commentAdapter.setTotal(responseInfo.totalCount);
+                    listView.setAdapter(commentAdapter);
+                } else if(responseInfo.code == 400) {
+                    String message = "작성 실패";
+                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                } else {
+                    String message = "알 수 없는 오류";
+                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                }
+            }
+        };
+
+        networkManager.request(protocolObj, getContext(),myFunction);
 
         return rootView;
     }
@@ -237,54 +264,41 @@ public class MovieDetailFragment extends Fragment{
 
     private  void increaseLikeDislike(int movieId, final String likeyn, final String dislikeyn) {
 
-        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/increaseLikeDisLike";
-        url += "?" + "id=" + movieId;
+        final ProtocolObj protocolObj = new ProtocolObj();
+        protocolObj.setUrl("increaseLikeDisLike");
+        protocolObj.setRequestType(Request.Method.GET);
+        protocolObj.setParam("id",String.valueOf(movieId));
 
         if(likeyn == null & dislikeyn == null) {
             return;
         }
 
         if(likeyn != null) {
-            url += "&likeyn=" + likeyn;
+            protocolObj.setParam("likeyn",likeyn);
         }
 
         else if(dislikeyn != null) {
-            url += "&dislikeyn=" + dislikeyn;
+            protocolObj.setParam("dislikeyn",dislikeyn);
         }
 
+        MyFunction myFunction = new MyFunction() {
+            @Override
+            public void myMethod(String response) {
+                ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
 
-        StringRequest request = new StringRequest(
-                Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Gson gson = new Gson();
-
-                        int status = gson.fromJson(response, ResponseInfo.class).code;
-
-                        if(status == 200) {
-                            changeLikeDislikeView(likeyn, dislikeyn);
-                        } else if(status == 400) {
-                            String message = "작성 실패";
-                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                        } else {
-                            String message = "알 수 없는 오류";
-                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                        }
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                    }
+                if(responseInfo.code == 200) {
+                    changeLikeDislikeView(likeyn, dislikeyn);
+                } else if(responseInfo.code == 400) {
+                    String message = "작성 실패";
+                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                } else {
+                    String message = "알 수 없는 오류";
+                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
                 }
-        );
+            }
+        };
+        networkManager.request(protocolObj, getContext(),myFunction);
 
-        request.setShouldCache(false);
-        AppHelper.requestQueue.add(request);
     }
 
     private void changeLikeDislikeView(String likeyn, String dislikeyn) {
@@ -299,51 +313,6 @@ public class MovieDetailFragment extends Fragment{
             tvDislikeCount.setText(String.valueOf(dislikeCount));
             dislikeState = !dislikeState;
             ivDislikeButton.setSelected(dislikeState);
-        }
-    }
-
-
-
-    private void readCommentList(int id) {
-        String strId = String.valueOf(id);
-
-        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/readCommentList";
-        url += "?" + "id=" + strId;
-
-        StringRequest request = new StringRequest(
-                Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        renderListView(response);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                }
-        );
-
-        request.setShouldCache(false);
-        AppHelper.requestQueue.add(request);
-    }
-
-    private void renderListView(String response) {
-        Gson gson = new Gson();
-
-        ResponseInfo responseInfo = gson.fromJson(response, ResponseInfo.class);
-
-
-        if(responseInfo.code == 200) {
-            ArrayList<CommentInfo> items = gson.fromJson(response, CommentList.class).getResult();
-            ListView listView = (ListView) rootView.findViewById(R.id.listView);
-
-            commentAdapter = new CommentAdapter(items, getContext());
-            commentAdapter.setTotal(responseInfo.totalCount);
-            listView.setAdapter(commentAdapter);
         }
     }
 

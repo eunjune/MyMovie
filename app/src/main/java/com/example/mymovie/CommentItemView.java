@@ -11,12 +11,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.example.mymovie.data.ProtocolObj;
 import com.example.mymovie.data.ResponseInfo;
-import com.google.gson.Gson;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -31,6 +27,8 @@ import org.joda.time.format.DateTimeFormatter;
 
 public class CommentItemView extends LinearLayout {
 
+    private NetworkManager networkManager;
+
     private int reviewId;
 
     private TextView tvWriter;
@@ -44,12 +42,16 @@ public class CommentItemView extends LinearLayout {
         super(context);
 
         init(context);
+
+        networkManager = new NetworkManager(getContext());
     }
 
     public CommentItemView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
         init(context);
+
+        networkManager = new NetworkManager(getContext());
     }
 
     public int getMovieId() {
@@ -76,11 +78,36 @@ public class CommentItemView extends LinearLayout {
         layoutRecommendation.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(AppHelper.requestQueue == null) {
-                    AppHelper.requestQueue = Volley.newRequestQueue(getContext());
-                }
 
-                increaseRecommand();
+                final ProtocolObj protocolObj = new ProtocolObj();
+                protocolObj.setUrl("increaseRecommend");
+                protocolObj.setRequestType(Request.Method.GET);
+                protocolObj.setParam("review_id",String.valueOf(reviewId));
+                protocolObj.setParam("writer",tvWriter.getText().toString());
+
+                MyFunction myFunction = new MyFunction() {
+                    @Override
+                    public void myMethod(String response) {
+                        ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
+
+                        if(responseInfo.code == 200) {
+                            int recommendation = Integer.valueOf(tvRecommendation.getText().toString());
+                            recommendation++;
+
+                            String strRecommendation = String.valueOf(recommendation);
+                            tvRecommendation.setText(strRecommendation);
+                        } else if(responseInfo.code == 400) {
+                            String message = "작성 실패";
+                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                        } else {
+                            String message = "알 수 없는 오류";
+                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                };
+
+                networkManager.request(protocolObj,getContext(),myFunction);
+
             }
         });
 
@@ -134,49 +161,6 @@ public class CommentItemView extends LinearLayout {
 
     public void addCommentRating(float rating) {
         rbComment.setRating(rating);
-    }
-
-    private void increaseRecommand() {
-        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/increaseRecommend";
-        url += "?" + "review_id=" + reviewId
-                + "&writer=" + tvWriter.getText().toString();
-
-        StringRequest request = new StringRequest(
-                Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Gson gson = new Gson();
-
-                        int status = gson.fromJson(response, ResponseInfo.class).code;
-
-                        if(status == 200) {
-                            int recommendation = Integer.valueOf(tvRecommendation.getText().toString());
-                            recommendation++;
-
-                            String strRecommendation = String.valueOf(recommendation);
-                            tvRecommendation.setText(strRecommendation);
-                        } else if(status == 400) {
-                            String message = "작성 실패";
-                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                        } else {
-                            String message = "알 수 없는 오류";
-                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                        }
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                }
-        );
-
-        request.setShouldCache(false);
-        AppHelper.requestQueue.add(request);
     }
 
 }

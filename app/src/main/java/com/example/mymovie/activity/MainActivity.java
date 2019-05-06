@@ -15,28 +15,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.example.mymovie.AppHelper;
-import com.example.mymovie.fragment.MovieDetailFragment;
-import com.example.mymovie.fragment.MoviePosterFragment;
+import com.example.mymovie.MyFunction;
+import com.example.mymovie.NetworkManager;
 import com.example.mymovie.R;
 import com.example.mymovie.data.MovieDetailInfo;
 import com.example.mymovie.data.MovieInfo;
 import com.example.mymovie.data.MovieList;
+import com.example.mymovie.data.ProtocolObj;
 import com.example.mymovie.data.ResponseInfo;
-import com.google.gson.Gson;
+import com.example.mymovie.fragment.MovieDetailFragment;
+import com.example.mymovie.fragment.MoviePosterFragment;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private NetworkManager networkManager;
     private MoviePagerAdapter moviePagerAdapter;
     private ArrayList<MovieInfo> movieList = new ArrayList<>();
 
@@ -44,6 +41,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        networkManager = new NetworkManager(getApplicationContext());
 
         // 바로 가기 메뉴
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -60,20 +59,37 @@ public class MainActivity extends AppCompatActivity
 
 
         // 영화 목록 요청
-        if(AppHelper.requestQueue == null) {
-            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
-        }
+        final ProtocolObj protocolObj = new ProtocolObj();
+        protocolObj.setRequestType(Request.Method.GET);
+        protocolObj.setUrl("readMovieList");
+        protocolObj.setParam("type",String.valueOf(1));
+        protocolObj.setResponseClass(MovieList.class);
 
-        readMovieList();
+        MyFunction myFunction = new MyFunction() {
+            @Override
+            public void myMethod(String response) {
+                ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
+                if(responseInfo.code == 200) {
+                    MovieList list = (MovieList)protocolObj.getResponseClass(response);
+                    movieList = list.getResult();
+
+                    renderViewPager();
+                }
+            }
+        };
+
+        networkManager.request(protocolObj,getApplicationContext(),myFunction);
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         // 한줄평 모두 보기에서 한줄평 작성 버튼 클릭
-        MovieDetailInfo movieDetailInfo = (MovieDetailInfo)intent.getSerializableExtra("movieDetailInfo");
-        int index = intent.getIntExtra("index",-1);
+
         if (resultCode == RESULT_OK) {
+            MovieDetailInfo movieDetailInfo = (MovieDetailInfo)intent.getSerializableExtra("movieDetailInfo");
+            int index = intent.getIntExtra("index",-1);
             moviePagerAdapter.moviePosterItems.get(index).getMovieDetailFragment().showCommentWriteActivity(movieDetailInfo);
         }
     }
@@ -132,42 +148,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void readMovieList() {
-        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/readMovieList";
-        url += "?" + "type=1";
 
-        StringRequest request = new StringRequest(
-                Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        processResponse(response);
-                        renderViewPager();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                }
-        );
-
-        request.setShouldCache(false);
-        AppHelper.requestQueue.add(request);
-
-    }
-
-    private void processResponse(String response) {
-        Gson gson = new Gson();
-
-        ResponseInfo responseInfo = gson.fromJson(response, ResponseInfo.class);
-        if(responseInfo.code == 200) {
-            movieList = gson.fromJson(response,MovieList.class).getResult();
-        }
-
-    }
 
     public void renderViewPager() {
         // 뷰 페이저

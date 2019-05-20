@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.example.mymovie.MyFunction;
-import com.example.mymovie.NetworkManager;
+import com.example.mymovie.network.NetworkManager;
 import com.example.mymovie.R;
 import com.example.mymovie.data.MovieDetailInfo;
 import com.example.mymovie.data.ProtocolObj;
@@ -64,7 +64,7 @@ public class CommentWriteActivity extends AppCompatActivity{
 
                 MyFunction myFunction = new MyFunction() {
                     @Override
-                    public void myMethod(String response) {
+                    public void callback(String response) {
 
                         ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
 
@@ -80,7 +80,7 @@ public class CommentWriteActivity extends AppCompatActivity{
                     }
                 };
 
-                networkManager.request(protocolObj,getApplicationContext(),myFunction);
+                networkManager.request(protocolObj,getApplicationContext(), myFunction);
             }
         });
 

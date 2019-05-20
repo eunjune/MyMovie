@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.example.mymovie.data.ProtocolObj;
 import com.example.mymovie.data.ResponseInfo;
+import com.example.mymovie.network.NetworkManager;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -87,7 +88,7 @@ public class CommentItemView extends LinearLayout {
 
                 MyFunction myFunction = new MyFunction() {
                     @Override
-                    public void myMethod(String response) {
+                    public void callback(String response) {
                         ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
 
                         if(responseInfo.code == 200) {
@@ -106,7 +107,7 @@ public class CommentItemView extends LinearLayout {
                     }
                 };
 
-                networkManager.request(protocolObj,getContext(),myFunction);
+                networkManager.request(protocolObj,getContext(), myFunction);
 
             }
         });

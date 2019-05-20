@@ -1,6 +1,7 @@
 package com.example.mymovie.fragment;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,15 +19,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
-import com.example.mymovie.ImageLoadTask;
 import com.example.mymovie.MyFunction;
-import com.example.mymovie.NetworkManager;
 import com.example.mymovie.R;
 import com.example.mymovie.data.MovieDetailInfo;
 import com.example.mymovie.data.MovieDetailList;
 import com.example.mymovie.data.MovieInfo;
 import com.example.mymovie.data.ProtocolObj;
 import com.example.mymovie.data.ResponseInfo;
+import com.example.mymovie.database.DBHelper;
+import com.example.mymovie.network.ImageLoadTask;
+import com.example.mymovie.network.NetworkManager;
 
 public class MoviePosterFragment extends Fragment {
 
@@ -90,41 +92,61 @@ public class MoviePosterFragment extends Fragment {
             // 상세보기 클릭시
             @Override
             public void onClick(View v) {
-                final ProtocolObj protocolObj = new ProtocolObj();
-                protocolObj.setUrl("readMovie");
-                protocolObj.setRequestType(Request.Method.GET);
-                protocolObj.setParam("name",movieInfo.getTitle());
-                protocolObj.setResponseClass(MovieDetailList.class);
 
-                MyFunction myFunction = new MyFunction() {
-                    @Override
-                    public void myMethod(String response) {
+                int networkState = NetworkManager.getConnectivityStatus(getContext());
 
-                        ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
+                if(networkState == ConnectivityManager.TYPE_MOBILE || networkState == ConnectivityManager.TYPE_WIFI) {
+                    final ProtocolObj protocolObj = new ProtocolObj();
+                    protocolObj.setUrl("readMovie");
+                    protocolObj.setRequestType(Request.Method.GET);
+                    protocolObj.setParam("name",movieInfo.getTitle());
+                    protocolObj.setResponseClass(MovieDetailList.class);
 
-                        if(responseInfo.code == 200) {
-                            MovieDetailList movieDetailList = (MovieDetailList) protocolObj
-                                    .getResponseClass(response);
-                            MovieDetailInfo movieDetailInfo = movieDetailList.getMovieDetailInfo(0);
+                    MyFunction myFunction = new MyFunction() {
+                        @Override
+                        public void callback(String response) {
 
-                            if(movieDetailInfo != null) {
-                                Bundle bundle = new Bundle();
-                                bundle.putSerializable("movieDetailInfo", movieDetailInfo);
-                                bundle.putInt("index",index);
-                                showMovieDetailFragment(bundle);
+                            ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
+
+                            if(responseInfo.code == 200) {
+                                MovieDetailList movieDetailList = (MovieDetailList) protocolObj
+                                        .getResponseClass(response);
+                                MovieDetailInfo movieDetailInfo = movieDetailList.getMovieDetailInfo(0);
+
+                                if(DBHelper.selectMovieCount(movieDetailInfo.getId()) == 0) {
+                                    DBHelper.insertMovie(movieDetailInfo);
+                                } else {
+                                    DBHelper.updateMovie(movieDetailInfo);
+                                }
+
+                                if(movieDetailInfo != null) {
+                                    Bundle bundle = new Bundle();
+                                    bundle.putSerializable("movieDetailInfo", movieDetailInfo);
+                                    bundle.putInt("index",index);
+                                    showMovieDetailFragment(bundle);
+                                }
+                            } else if(responseInfo.code == 400) {
+                                String message = "데이터 불러오기 실패";
+                                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                            } else {
+                                String message = "알 수 없는 오류";
+                                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
                             }
-                        } else if(responseInfo.code == 400) {
-                            String message = "작성 실패";
-                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                        } else {
-                            String message = "알 수 없는 오류";
-                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
                         }
-                    }
-                };
+                    };
 
-                networkManager.request(protocolObj,getContext(),myFunction);
-                //readMovie(movieInfo.getTitle());
+                    networkManager.request(protocolObj,getContext(), myFunction);
+                } else {
+                    MovieDetailInfo movieDetailInfo = DBHelper.selectMovie(movieInfo.getId());
+                    if(movieDetailInfo != null) {
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("movieDetailInfo", movieDetailInfo);
+                        bundle.putInt("index",index);
+                        showMovieDetailFragment(bundle);
+                    }
+                }
+
+
             }
         });
 

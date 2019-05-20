@@ -1,4 +1,4 @@
-package com.example.mymovie;
+package com.example.mymovie.network;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

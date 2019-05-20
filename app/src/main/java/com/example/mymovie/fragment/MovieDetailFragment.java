@@ -2,6 +2,7 @@ package com.example.mymovie.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -21,9 +22,7 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.example.mymovie.CommentAdapter;
-import com.example.mymovie.ImageLoadTask;
 import com.example.mymovie.MyFunction;
-import com.example.mymovie.NetworkManager;
 import com.example.mymovie.R;
 import com.example.mymovie.activity.AllCommentActivity;
 import com.example.mymovie.activity.CommentWriteActivity;
@@ -32,8 +31,12 @@ import com.example.mymovie.data.CommentList;
 import com.example.mymovie.data.MovieDetailInfo;
 import com.example.mymovie.data.ProtocolObj;
 import com.example.mymovie.data.ResponseInfo;
+import com.example.mymovie.database.DBHelper;
+import com.example.mymovie.network.ImageLoadTask;
+import com.example.mymovie.network.NetworkManager;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MovieDetailFragment extends Fragment{
 
@@ -175,38 +178,60 @@ public class MovieDetailFragment extends Fragment{
             }
         });
 
-        // 한줄평 리스트 불러오기
-        final ProtocolObj protocolObj = new ProtocolObj();
-        protocolObj.setUrl("readCommentList");
-        protocolObj.setRequestType(Request.Method.GET);
-        protocolObj.setParam("id",String.valueOf(movieDetailInfo.getId()));
-        protocolObj.setResponseClass(CommentList.class);
+        int networkState = NetworkManager.getConnectivityStatus(getContext());
 
-        MyFunction myFunction = new MyFunction() {
-            @Override
-            public void myMethod(String response) {
+        if(networkState == ConnectivityManager.TYPE_MOBILE || networkState == ConnectivityManager.TYPE_WIFI) {
 
-                ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
+            // 한줄평 리스트 불러오기
+            final ProtocolObj protocolObj = new ProtocolObj();
+            protocolObj.setUrl("readCommentList");
+            protocolObj.setRequestType(Request.Method.GET);
+            protocolObj.setParam("id",String.valueOf(movieDetailInfo.getId()));
+            protocolObj.setResponseClass(CommentList.class);
 
-                if(responseInfo.code == 200) {
-                    CommentList list = (CommentList) protocolObj.getResponseClass(response);
-                    ArrayList<CommentInfo> items = list.getResult();
-                    ListView listView = (ListView) rootView.findViewById(R.id.listView);
+            MyFunction myFunction = new MyFunction() {
+                @Override
+                public void callback(String response) {
 
-                    commentAdapter = new CommentAdapter(items, getContext());
-                    commentAdapter.setTotal(responseInfo.totalCount);
-                    listView.setAdapter(commentAdapter);
-                } else if(responseInfo.code == 400) {
-                    String message = "작성 실패";
-                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                } else {
-                    String message = "알 수 없는 오류";
-                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                    ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
+
+                    if(responseInfo.code == 200) {
+                        CommentList list = (CommentList) protocolObj.getResponseClass(response);
+                        ListView listView = (ListView) rootView.findViewById(R.id.listView);
+                        ArrayList<CommentInfo> items = list.getResult();
+
+                        for(CommentInfo item : items) {
+                            if(DBHelper.selectCommentCount(item.getId()) == 0) {
+                                DBHelper.insertComment(item);
+                            } else {
+                                DBHelper.updateComment(item);
+                            }
+                        }
+
+                        commentAdapter = new CommentAdapter(items, getContext());
+                        commentAdapter.setTotal(responseInfo.totalCount);
+                        listView.setAdapter(commentAdapter);
+                    } else if(responseInfo.code == 400) {
+                        String message = "데이터 불러오기 실패";
+                        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                    } else {
+                        String message = "알 수 없는 오류";
+                        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                    }
                 }
-            }
-        };
+            };
 
-        networkManager.request(protocolObj, getContext(),myFunction);
+            networkManager.request(protocolObj, getContext(), myFunction);
+
+        } else {
+            List<CommentInfo> items = DBHelper.selectCommentList(movieDetailInfo.getId());
+            ListView listView = (ListView) rootView.findViewById(R.id.listView);
+
+            commentAdapter = new CommentAdapter(items, getContext());
+            commentAdapter.setTotal(items.size());
+            listView.setAdapter(commentAdapter);
+        }
+
 
         return rootView;
     }
@@ -226,6 +251,7 @@ public class MovieDetailFragment extends Fragment{
     private void clickLikeButton(int movieId) {
         String likeyn = null;
         String dislikeyn = null;
+        int networkState = NetworkManager.getConnectivityStatus(getContext());
 
         if (likeState) {
             likeCount--;
@@ -239,13 +265,21 @@ public class MovieDetailFragment extends Fragment{
             likeyn = "Y";
         }
 
-        increaseLikeDislike(movieId, likeyn, null);
-        increaseLikeDislike(movieId, null, dislikeyn);
+        if(networkState == ConnectivityManager.TYPE_MOBILE || networkState == ConnectivityManager.TYPE_WIFI) {
+            increaseLikeDislike(movieId, likeyn, null);
+            increaseLikeDislike(movieId, null, dislikeyn);
+        } else {
+            String message = "네트워크가 연결되어 있지 않습니다.";
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        }
+
+
     }
 
     private void clickDislikeButton(int movieId) {
         String likeyn = null;
         String dislikeyn = null;
+        int networkState = NetworkManager.getConnectivityStatus(getContext());
 
         if (dislikeState) {
             dislikeCount--;
@@ -258,8 +292,14 @@ public class MovieDetailFragment extends Fragment{
             dislikeCount++;
             dislikeyn="Y";
         }
-        increaseLikeDislike(movieId, likeyn, null);
-        increaseLikeDislike(movieId, null, dislikeyn);
+
+        if(networkState == ConnectivityManager.TYPE_MOBILE || networkState == ConnectivityManager.TYPE_WIFI) {
+            increaseLikeDislike(movieId, likeyn, null);
+            increaseLikeDislike(movieId, null, dislikeyn);
+        } else {
+            String message = "네트워크가 연결되어 있지 않습니다.";
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        }
     }
 
     private  void increaseLikeDislike(int movieId, final String likeyn, final String dislikeyn) {
@@ -269,7 +309,7 @@ public class MovieDetailFragment extends Fragment{
         protocolObj.setRequestType(Request.Method.GET);
         protocolObj.setParam("id",String.valueOf(movieId));
 
-        if(likeyn == null & dislikeyn == null) {
+        if(likeyn == null && dislikeyn == null) {
             return;
         }
 
@@ -283,7 +323,7 @@ public class MovieDetailFragment extends Fragment{
 
         MyFunction myFunction = new MyFunction() {
             @Override
-            public void myMethod(String response) {
+            public void callback(String response) {
                 ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
 
                 if(responseInfo.code == 200) {
@@ -297,7 +337,7 @@ public class MovieDetailFragment extends Fragment{
                 }
             }
         };
-        networkManager.request(protocolObj, getContext(),myFunction);
+        networkManager.request(protocolObj, getContext(), myFunction);
 
     }
 
@@ -325,9 +365,8 @@ public class MovieDetailFragment extends Fragment{
 
     // 한줄평 모두 보기
     public void showAllCommentActivity() {
-
         Intent intent = new Intent(getActivity(), AllCommentActivity.class);
-        intent.putExtra("commentList", commentAdapter.getItems());
+        intent.putExtra("commentList", (ArrayList)commentAdapter.getItems());
         intent.putExtra("movieDetailInfo", movieDetailInfo);
         intent.putExtra("total",commentAdapter.getTotal());
         intent.putExtra("index",index);

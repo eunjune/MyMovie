@@ -8,21 +8,22 @@ import android.widget.BaseAdapter;
 import com.example.mymovie.data.CommentInfo;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CommentAdapter extends BaseAdapter {
 
-    private ArrayList<CommentInfo> items;
+    private List<CommentInfo> items;
     private Context context;
 
     private int total;
 
-    public CommentAdapter(ArrayList<CommentInfo> items, Context context) {
+    public CommentAdapter(List<CommentInfo> items, Context context) {
         this.items = items;
 
         this.context = context;
     }
 
-    public ArrayList<CommentInfo> getItems() {
+    public List<CommentInfo> getItems() {
         return items;
     }
 

@@ -67,18 +67,18 @@ public class DBHelper {
             while(cursor.moveToNext()) {
                 MovieInfo movieInfo = new MovieInfo();
 
-                movieInfo.setId(cursor.getInt(0));
-                movieInfo.setTitle(cursor.getString(1));
-                movieInfo.setTitle_eng(cursor.getString(2));
-                movieInfo.setDate(cursor.getString(3));
-                movieInfo.setUser_rating(cursor.getFloat(4));
-                movieInfo.setAudience_rating(cursor.getFloat(5));
-                movieInfo.setReviewer_rating(cursor.getFloat(6));
-                movieInfo.setReservation_rate(cursor.getFloat(7));
-                movieInfo.setReservation_grade(cursor.getInt(8));
-                movieInfo.setGrade(cursor.getInt(9));
-                movieInfo.setThumb(cursor.getString(10));
-                movieInfo.setImage(cursor.getString(11));
+                movieInfo.setId(cursor.getInt(1));
+                movieInfo.setTitle(cursor.getString(2));
+                movieInfo.setTitle_eng(cursor.getString(3));
+                movieInfo.setDate(cursor.getString(4));
+                movieInfo.setUser_rating(cursor.getFloat(5));
+                movieInfo.setAudience_rating(cursor.getFloat(6));
+                movieInfo.setReviewer_rating(cursor.getFloat(7));
+                movieInfo.setReservation_rate(cursor.getFloat(8));
+                movieInfo.setReservation_grade(cursor.getInt(9));
+                movieInfo.setGrade(cursor.getInt(10));
+                movieInfo.setThumb(cursor.getString(11));
+                movieInfo.setImage(cursor.getString(12));
 
                 list.add(movieInfo);
             }
@@ -112,28 +112,28 @@ public class DBHelper {
         if(database != null) {
             Cursor cursor = database.rawQuery(DBsql.selectMovieSql,new String[]{String.valueOf(id)});
             while(cursor.moveToNext()) {
-                movieDetailInfo.setId(cursor.getInt(0));
-                movieDetailInfo.setTitle(cursor.getString(1));
-                movieDetailInfo.setDate(cursor.getString(2));
-                movieDetailInfo.setUser_rating(cursor.getFloat(3));
-                movieDetailInfo.setAudience_rating(cursor.getFloat(4));
-                movieDetailInfo.setReviewer_rating(cursor.getFloat(5));
-                movieDetailInfo.setReservation_rate(cursor.getFloat(6));
-                movieDetailInfo.setReservation_grade(cursor.getInt(7));
-                movieDetailInfo.setGrade(cursor.getInt(8));
-                movieDetailInfo.setThumb(cursor.getString(9));
-                movieDetailInfo.setImage(cursor.getString(10));
-                movieDetailInfo.setPhotos(cursor.getString(11));
-                movieDetailInfo.setVideos(cursor.getString(12));
-                movieDetailInfo.setOutlinks(cursor.getString(13));
-                movieDetailInfo.setGenre(cursor.getString(14));
-                movieDetailInfo.setDuration(cursor.getInt(15));
-                movieDetailInfo.setAudience(cursor.getInt(16));
-                movieDetailInfo.setSynopsis(cursor.getString(17));
-                movieDetailInfo.setDirector(cursor.getString(18));
-                movieDetailInfo.setActor(cursor.getString(19));
-                movieDetailInfo.setLike(cursor.getInt(20));
-                movieDetailInfo.setDislike(cursor.getInt(21));
+                movieDetailInfo.setId(cursor.getInt(1));
+                movieDetailInfo.setTitle(cursor.getString(2));
+                movieDetailInfo.setDate(cursor.getString(3));
+                movieDetailInfo.setUser_rating(cursor.getFloat(4));
+                movieDetailInfo.setAudience_rating(cursor.getFloat(5));
+                movieDetailInfo.setReviewer_rating(cursor.getFloat(6));
+                movieDetailInfo.setReservation_rate(cursor.getFloat(7));
+                movieDetailInfo.setReservation_grade(cursor.getInt(8));
+                movieDetailInfo.setGrade(cursor.getInt(9));
+                movieDetailInfo.setThumb(cursor.getString(10));
+                movieDetailInfo.setImage(cursor.getString(11));
+                movieDetailInfo.setPhotos(cursor.getString(12));
+                movieDetailInfo.setVideos(cursor.getString(13));
+                movieDetailInfo.setOutlinks(cursor.getString(14));
+                movieDetailInfo.setGenre(cursor.getString(15));
+                movieDetailInfo.setDuration(cursor.getInt(16));
+                movieDetailInfo.setAudience(cursor.getInt(17));
+                movieDetailInfo.setSynopsis(cursor.getString(18));
+                movieDetailInfo.setDirector(cursor.getString(19));
+                movieDetailInfo.setActor(cursor.getString(20));
+                movieDetailInfo.setLike(cursor.getInt(21));
+                movieDetailInfo.setDislike(cursor.getInt(22));
             }
 
             cursor.close();
@@ -166,15 +166,17 @@ public class DBHelper {
             while(cursor.moveToNext()) {
                 CommentInfo commentInfo = new CommentInfo();
 
-                commentInfo.setId(cursor.getInt(0));
-                commentInfo.setWriter(cursor.getString(1));
-                commentInfo.setMovieId(cursor.getInt(2));
-                commentInfo.setWriter_image(cursor.getString(3));
-                commentInfo.setTime(cursor.getString(4));
-                commentInfo.setTimestamp(cursor.getInt(5));
-                commentInfo.setRating(cursor.getInt(6));
-                commentInfo.setContents(cursor.getString(7));
-                commentInfo.setRecommend(cursor.getInt(8));
+                commentInfo.setId(cursor.getInt(1));
+                commentInfo.setWriter(cursor.getString(2));
+                commentInfo.setMovieId(cursor.getInt(3));
+                commentInfo.setWriter_image(cursor.getString(4));
+                commentInfo.setTime(cursor.getString(5));
+                commentInfo.setTimestamp(cursor.getInt(6));
+                commentInfo.setRating(cursor.getInt(7));
+                commentInfo.setContents(cursor.getString(8));
+                commentInfo.setRecommend(cursor.getInt(9));
+
+                list.add(commentInfo);
             }
 
             cursor.close();

@@ -119,6 +119,8 @@ public class MovieDetailFragment extends Fragment{
                 clickLikeButton(movieDetailInfo.getId());
             }
         });
+        ivLikeButton.setSelected(likeState);
+
 
         // 싫어요 클릭시
         dislikeCount = movieDetailInfo.getDislike();
@@ -132,6 +134,7 @@ public class MovieDetailFragment extends Fragment{
                 clickDislikeButton(movieDetailInfo.getId());
             }
         });
+        ivDislikeButton.setSelected(dislikeState);
 
         tvReservationGrade = (TextView)rootView.findViewById(R.id.tv_reservation_grade);
         tvReservationGrade.setText(String.valueOf(movieDetailInfo.getReservation_grade()) + "위 ");

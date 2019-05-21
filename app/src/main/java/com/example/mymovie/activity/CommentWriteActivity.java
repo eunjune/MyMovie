@@ -1,6 +1,7 @@
 package com.example.mymovie.activity;
 
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -13,11 +14,11 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.example.mymovie.MyFunction;
-import com.example.mymovie.network.NetworkManager;
 import com.example.mymovie.R;
 import com.example.mymovie.data.MovieDetailInfo;
 import com.example.mymovie.data.ProtocolObj;
 import com.example.mymovie.data.ResponseInfo;
+import com.example.mymovie.network.NetworkManager;
 
 public class CommentWriteActivity extends AppCompatActivity{
 
@@ -53,34 +54,42 @@ public class CommentWriteActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
 
-                final ProtocolObj protocolObj = new ProtocolObj();
-                protocolObj.setUrl("createComment");
-                protocolObj.setRequestType(Request.Method.GET);
-                protocolObj.setParam("id",String.valueOf(movieDetailInfo.getId()));
-                protocolObj.setParam("writer","kym7112");
-                protocolObj.setParam("time",movieDetailInfo.getDate());
-                protocolObj.setParam("rating",String.valueOf(ratingBar.getRating()));
-                protocolObj.setParam("contents",etContents.getText().toString());
+                int networkState = NetworkManager.getConnectivityStatus(getApplicationContext());
 
-                MyFunction myFunction = new MyFunction() {
-                    @Override
-                    public void callback(String response) {
+                if(networkState == ConnectivityManager.TYPE_MOBILE || networkState == ConnectivityManager.TYPE_WIFI) {
+                    final ProtocolObj protocolObj = new ProtocolObj();
+                    protocolObj.setUrl("createComment");
+                    protocolObj.setRequestType(Request.Method.GET);
+                    protocolObj.setParam("id",String.valueOf(movieDetailInfo.getId()));
+                    protocolObj.setParam("writer","kym7112");
+                    protocolObj.setParam("time",movieDetailInfo.getDate());
+                    protocolObj.setParam("rating",String.valueOf(ratingBar.getRating()));
+                    protocolObj.setParam("contents",etContents.getText().toString());
 
-                        ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
+                    MyFunction myFunction = new MyFunction() {
+                        @Override
+                        public void callback(String response) {
 
-                        if(responseInfo.code == 200) {
-                            finish();
-                        } else if(responseInfo.code == 400) {
-                            String message = "작성 실패";
-                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                        } else {
-                            String message = "알 수 없는 오류";
-                            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                            ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
+
+                            if(responseInfo.code == 200) {
+                                finish();
+                            } else if(responseInfo.code == 400) {
+                                String message = "작성 실패";
+                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                            } else {
+                                String message = "알 수 없는 오류";
+                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                            }
                         }
-                    }
-                };
+                    };
 
-                networkManager.request(protocolObj,getApplicationContext(), myFunction);
+                    networkManager.request(protocolObj,getApplicationContext(), myFunction);
+                } else {
+                    String message = "네트워크가 연결되어 있지 않습니다.";
+                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                }
+
             }
         });
 

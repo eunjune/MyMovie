@@ -67,7 +67,7 @@ public class DBsql {
 
     public static final String selectMovieSql = "select * from movie where id=?";
 
-    public static final String selectCommentSql = "select * from comment where movieId=?";
+    public static final String selectCommentSql = "select * from comment where movieId=? order by time desc";
 
     public static final String selectCommentIdSql = "select * from comment where id=?";
 
@@ -92,7 +92,7 @@ public class DBsql {
 
     public static final String updateMovieSql = "update movie " +
             "set title=?, dateValue=?, user_rating=?, audience_rating=?, reviewer_rating=?, " +
-            "reservation_rate=?,reservation_grade=?, grade=?, thumb=?, image=? photos=?, videos=?, " +
+            "reservation_rate=?,reservation_grade=?, grade=?, thumb=?, image=?, photos=?, videos=?, " +
             "outlinks=?, genre=?, duration=?, audience=?,synopsis=?,director=?,actor=?,like=?,dislike=? where id = ?";
 
     public static final String updateCommentSql = "update comment " +

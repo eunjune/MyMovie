@@ -64,6 +64,7 @@ public class MoviePosterFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_movie_poster, container, false);
 
+
         networkManager = new NetworkManager(getContext());
 
         ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
@@ -71,8 +72,14 @@ public class MoviePosterFragment extends Fragment {
 
         // 뷰 세팅
         ivPoster = (ImageView) rootView.findViewById(R.id.iv_poster);
-        ImageLoadTask imageLoadTask = new ImageLoadTask(movieInfo.getImage(),ivPoster);
-        imageLoadTask.execute();
+
+        int networkState = NetworkManager.getConnectivityStatus(getContext());
+
+        if(networkState == ConnectivityManager.TYPE_MOBILE || networkState == ConnectivityManager.TYPE_WIFI) {
+            ImageLoadTask imageLoadTask = new ImageLoadTask(movieInfo.getImage(),ivPoster);
+            imageLoadTask.execute();
+        }
+
 
         tvTitle = (TextView) rootView.findViewById(R.id.tv_title);
         tvTitle.setText((index + 1) + "." + movieInfo.getTitle());

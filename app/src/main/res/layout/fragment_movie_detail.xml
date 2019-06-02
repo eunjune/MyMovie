@@ -377,6 +377,37 @@
             android:layout_height="10dp"
             android:background="@drawable/section_boudary">
 
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="갤러리"
+                android:textColor="@android:color/background_dark"
+                android:textSize="18dp"
+                android:textStyle="bold" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:background="@drawable/section_boudary">
+
         </LinearLayout>
 
         <!-- 한줄평 -->
@@ -415,7 +446,6 @@
                 android:textColor="#E44418"
                 android:textSize="18dp"
                 android:textStyle="bold"
-
                 />
 
             <ListView

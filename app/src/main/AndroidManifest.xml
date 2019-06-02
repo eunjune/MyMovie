@@ -21,6 +21,7 @@
         </activity>
         <activity android:name=".activity.AllCommentActivity" />
         <activity android:name=".activity.CommentWriteActivity" />
+        <activity android:name=".activity.PhotoActivity" />
     </application>
 
 </manifest>

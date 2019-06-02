@@ -3,12 +3,15 @@ package com.example.mymovie.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +26,11 @@ import android.widget.Toast;
 import com.android.volley.Request;
 import com.example.mymovie.CommentAdapter;
 import com.example.mymovie.MyFunction;
+import com.example.mymovie.PhotoAdapter;
 import com.example.mymovie.R;
 import com.example.mymovie.activity.AllCommentActivity;
 import com.example.mymovie.activity.CommentWriteActivity;
+import com.example.mymovie.activity.PhotoActivity;
 import com.example.mymovie.data.CommentInfo;
 import com.example.mymovie.data.CommentList;
 import com.example.mymovie.data.MovieDetailInfo;
@@ -236,6 +241,39 @@ public class MovieDetailFragment extends Fragment{
         }
 
 
+        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.rv_list);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL,false);
+        recyclerView.setLayoutManager(layoutManager);
+
+        PhotoAdapter photoAdapter = new PhotoAdapter(getContext());
+
+        String photoAndVideo = movieDetailInfo.getPhotos() +"," + movieDetailInfo.getVideos();
+        String[] photoUrlList = movieDetailInfo.getPhotos().split(",");
+        String[] urlList = photoAndVideo.split(",");
+
+        photoAdapter.setVideoStartIndex(photoUrlList.length);
+        photoAdapter.addItems(urlList);
+
+        recyclerView.setAdapter(photoAdapter);
+
+        photoAdapter.setOnItemClickListener(new PhotoAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(PhotoAdapter.ViewHolder holder, String url, int position) {
+
+                if(holder.getVideoStartIndex() > position) {
+                    Intent intent = new Intent(getContext(), PhotoActivity.class);
+                    intent.putExtra("url",url);
+                    startActivity(intent);
+
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    startActivity(intent);
+                }
+
+            }
+        });
+
         return rootView;
     }
 
@@ -376,4 +414,13 @@ public class MovieDetailFragment extends Fragment{
 
         startActivityForResult(intent,101);
     }
+
+    public void renderCommentList() {
+
+    }
+
+    public void renderPhotoList() {
+
+    }
+
 }

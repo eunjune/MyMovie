@@ -9,14 +9,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.example.mymovie.MyFunction;
 import com.example.mymovie.R;
 import com.example.mymovie.data.MovieDetailInfo;
-import com.example.mymovie.data.ProtocolObj;
-import com.example.mymovie.data.ResponseInfo;
 import com.example.mymovie.network.NetworkManager;
 
 public class CommentWriteActivity extends AppCompatActivity{
@@ -53,39 +48,7 @@ public class CommentWriteActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
 
-                if(networkManager.isNetworkAvailable()) {
-                    final ProtocolObj protocolObj = new ProtocolObj();
-                    protocolObj.setUrl("createComment");
-                    protocolObj.setRequestType(Request.Method.GET);
-                    protocolObj.setParam("id",String.valueOf(movieDetailInfo.getId()));
-                    protocolObj.setParam("writer","kym7112");
-                    protocolObj.setParam("time",movieDetailInfo.getDate());
-                    protocolObj.setParam("rating",String.valueOf(ratingBar.getRating()));
-                    protocolObj.setParam("contents",etContents.getText().toString());
 
-                    MyFunction myFunction = new MyFunction() {
-                        @Override
-                        public void callback(String response) {
-
-                            ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
-
-                            if(responseInfo.code == 200) {
-                                finish();
-                            } else if(responseInfo.code == 400) {
-                                String message = getResources().getString(R.string.all_write_error);
-                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                            } else {
-                                String message = getResources().getString(R.string.all_unknown_error);
-                                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    };
-
-                    networkManager.request(protocolObj,getApplicationContext(), myFunction);
-                } else {
-                    String message = getResources().getString(R.string.all_connection_error);
-                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                }
 
             }
         });

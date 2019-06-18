@@ -1,10 +1,5 @@
 package com.example.mymovie;
 
-public interface MyFunction {
+public interface NetworkResponseCallback {
     void callback(String response);
-
-
-
-
-
 }

@@ -12,35 +12,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.example.mymovie.CommentAdapter;
-import com.example.mymovie.MyFunction;
+import com.example.mymovie.MovieRepo;
 import com.example.mymovie.R;
+import com.example.mymovie.UiResponseCallback;
 import com.example.mymovie.activity.ActivityActionListener;
 import com.example.mymovie.activity.AllCommentActivity;
 import com.example.mymovie.activity.CommentWriteActivity;
-import com.example.mymovie.data.CommentInfo;
-import com.example.mymovie.data.CommentList;
 import com.example.mymovie.data.MovieDetailInfo;
-import com.example.mymovie.data.ProtocolObj;
-import com.example.mymovie.data.ResponseInfo;
-import com.example.mymovie.database.DBHelper;
 import com.example.mymovie.network.ImageLoadTask;
 import com.example.mymovie.network.NetworkManager;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MovieDetailFragment extends Fragment{
 
     public static final int REQUEST_CODE_ALL_COMMENT = 101;
 
-    private NetworkManager networkManager;
+    private MovieRepo movieRepo;
 
     private ActivityActionListener activityActionListener;
     private ViewGroup rootView;
@@ -90,9 +83,22 @@ public class MovieDetailFragment extends Fragment{
     }
 
     private void requestIncrease(int movieId, String likeyn, String dislikeyn) {
-        if(networkManager.isNetworkAvailable()) {
-            increaseLikeDislike(movieId, likeyn, null);
-            increaseLikeDislike(movieId, null, dislikeyn);
+        if(NetworkManager.isNetworkAvailable()) {
+
+            movieRepo.increaseLikeDislike(movieId, likeyn, null, new UiResponseCallback() {
+                @Override
+                public void callback(Object... args) {
+                    changeLikeDislikeView((String)args[0], (String)args[1]);
+                }
+            });
+
+            movieRepo.increaseLikeDislike(movieId, null, dislikeyn, new UiResponseCallback() {
+                @Override
+                public void callback(Object... args) {
+                    changeLikeDislikeView((String)args[0], (String)args[1]);
+                }
+            });
+
         } else {
             String message = getResources().getString(R.string.all_connection_error);
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
@@ -137,44 +143,7 @@ public class MovieDetailFragment extends Fragment{
         requestIncrease(movieId,likeyn,dislikeyn);
     }
 
-    private  void increaseLikeDislike(int movieId, final String likeyn, final String dislikeyn) {
 
-        final ProtocolObj protocolObj = new ProtocolObj();
-        protocolObj.setUrl("increaseLikeDisLike");
-        protocolObj.setRequestType(Request.Method.GET);
-        protocolObj.setParam("id",String.valueOf(movieId));
-
-        if(likeyn == null && dislikeyn == null) {
-            return;
-        }
-
-        if(likeyn != null) {
-            protocolObj.setParam("likeyn",likeyn);
-        }
-
-        else if(dislikeyn != null) {
-            protocolObj.setParam("dislikeyn",dislikeyn);
-        }
-
-        MyFunction myFunction = new MyFunction() {
-            @Override
-            public void callback(String response) {
-                ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
-
-                if(responseInfo.code == 200) {
-                    changeLikeDislikeView(likeyn, dislikeyn);
-                } else if(responseInfo.code == 400) {
-                    String message = getResources().getString(R.string.all_write_error);
-                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                } else {
-                    String message = getResources().getString(R.string.all_unknown_error);;
-                    Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                }
-            }
-        };
-        networkManager.request(protocolObj, getContext(), myFunction);
-
-    }
 
     private void changeLikeDislikeView(String likeyn, String dislikeyn) {
 
@@ -212,7 +181,7 @@ public class MovieDetailFragment extends Fragment{
     private void initFields() {
         movieDetailInfo = (MovieDetailInfo) getArguments().getSerializable("movieDetailInfo");
         index = getArguments().getInt("index");
-        networkManager = new NetworkManager(getContext());
+        movieRepo = new MovieRepo(getContext());
         likeCount = movieDetailInfo.getLike();
         dislikeCount = movieDetailInfo.getDislike();
     }
@@ -348,58 +317,5 @@ public class MovieDetailFragment extends Fragment{
         });*/
     }
 
-    private void requestCommentList() {
-       
-        if(networkManager.isNetworkAvailable()) {
 
-            // 한줄평 리스트 불러오기
-            final ProtocolObj protocolObj = new ProtocolObj();
-            protocolObj.setUrl("readCommentList");
-            protocolObj.setRequestType(Request.Method.GET);
-            protocolObj.setParam("id",String.valueOf(movieDetailInfo.getId()));
-            protocolObj.setResponseClass(CommentList.class);
-
-            MyFunction myFunction = new MyFunction() {
-                @Override
-                public void callback(String response) {
-
-                    ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
-
-                    if(responseInfo.code == 200) {
-                        CommentList list = (CommentList) protocolObj.getResponseClass(response);
-                        ListView listView = (ListView) rootView.findViewById(R.id.listView);
-                        ArrayList<CommentInfo> items = list.getResult();
-
-                        for(CommentInfo item : items) {
-                            if(DBHelper.selectCommentCount(item.getId()) == 0) {
-                                DBHelper.insertComment(item);
-                            } else {
-                                DBHelper.updateComment(item);
-                            }
-                        }
-
-                        commentAdapter = new CommentAdapter(items, getContext());
-                        commentAdapter.setTotal(responseInfo.totalCount);
-                        listView.setAdapter(commentAdapter);
-                    } else if(responseInfo.code == 400) {
-                        String message = getResources().getString(R.string.all_load_error);
-                        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                    } else {
-                        String message = getResources().getString(R.string.all_unknown_error);
-                        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                    }
-                }
-            };
-
-            networkManager.request(protocolObj, getContext(), myFunction);
-
-        } else {
-            List<CommentInfo> items = DBHelper.selectCommentList(movieDetailInfo.getId());
-            ListView listView = (ListView) rootView.findViewById(R.id.listView);
-
-            commentAdapter = new CommentAdapter(items, getContext());
-            commentAdapter.setTotal(items.size());
-            listView.setAdapter(commentAdapter);
-        }
-    }
 }

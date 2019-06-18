@@ -1,5 +1,6 @@
-package com.example.mymovie.data;
+package com.example.mymovie.network;
 
+import com.example.mymovie.data.ResponseInfo;
 import com.google.gson.Gson;
 
 import java.util.HashMap;

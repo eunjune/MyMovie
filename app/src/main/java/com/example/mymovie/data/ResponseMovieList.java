@@ -2,7 +2,7 @@ package com.example.mymovie.data;
 
 import java.util.ArrayList;
 
-public class MovieList {
+public class ResponseMovieList {
 
     private ArrayList<MovieInfo> result = new ArrayList<>();
 

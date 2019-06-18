@@ -2,7 +2,7 @@ package com.example.mymovie.data;
 
 import java.util.ArrayList;
 
-public class CommentList {
+public class ResponseCommentList {
     private ArrayList<CommentInfo> result = new ArrayList<>();
 
     public CommentInfo getCommentInfo(int index) {

@@ -10,8 +10,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.mymovie.MyFunction;
-import com.example.mymovie.data.ProtocolObj;
+import com.example.mymovie.NetworkResponseCallback;
 
 
 public class NetworkManager {
@@ -20,7 +19,6 @@ public class NetworkManager {
     private static String url = "http://boostcourse-appapi.connect.or.kr:10000/movie/";
     private Context context;
 
-
     public NetworkManager(Context context) {
         if(requestQueue == null) {
             requestQueue = Volley.newRequestQueue(context);
@@ -28,7 +26,7 @@ public class NetworkManager {
         this.context = context;
     }
 
-    public void request(final ProtocolObj protocolParam, final Context context, final MyFunction func) {
+    public void request(final ProtocolObj protocolParam, final Context context, final NetworkResponseCallback func) {
         StringRequest request = new StringRequest(
                 protocolParam.getRequestType(),
                 url + protocolParam.getUrl(),
@@ -50,7 +48,7 @@ public class NetworkManager {
         NetworkManager.requestQueue.add(request);
     }
 
-    public boolean isNetworkAvailable() {
+    public static boolean isNetworkAvailable() {
         ConnectivityManager manager = (ConnectivityManager) this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
         int networkState = -1;

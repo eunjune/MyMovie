@@ -8,11 +8,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.example.mymovie.data.ProtocolObj;
-import com.example.mymovie.data.ResponseInfo;
 import com.example.mymovie.network.NetworkManager;
 
 import org.joda.time.DateTime;
@@ -80,34 +76,7 @@ public class CommentItemView extends LinearLayout {
             @Override
             public void onClick(View v) {
 
-                final ProtocolObj protocolObj = new ProtocolObj();
-                protocolObj.setUrl("increaseRecommend");
-                protocolObj.setRequestType(Request.Method.GET);
-                protocolObj.setParam("review_id",String.valueOf(reviewId));
-                protocolObj.setParam("writer",tvWriter.getText().toString());
 
-                MyFunction myFunction = new MyFunction() {
-                    @Override
-                    public void callback(String response) {
-                        ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
-
-                        if(responseInfo.code == 200) {
-                            int recommendation = Integer.valueOf(tvRecommendation.getText().toString());
-                            recommendation++;
-
-                            String strRecommendation = String.valueOf(recommendation);
-                            tvRecommendation.setText(strRecommendation);
-                        } else if(responseInfo.code == 400) {
-                            String message = getResources().getString(R.string.all_write_error);
-                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                        } else {
-                            String message = getResources().getString(R.string.all_unknown_error);
-                            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                        }
-                    }
-                };
-
-                networkManager.request(protocolObj,getContext(), myFunction);
 
             }
         });

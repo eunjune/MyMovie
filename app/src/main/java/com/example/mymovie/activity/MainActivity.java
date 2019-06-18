@@ -17,18 +17,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.android.volley.Request;
-import com.example.mymovie.MyFunction;
+import com.example.mymovie.MovieRepo;
 import com.example.mymovie.R;
+import com.example.mymovie.UiResponseCallback;
 import com.example.mymovie.data.MovieDetailInfo;
 import com.example.mymovie.data.MovieInfo;
-import com.example.mymovie.data.MovieList;
-import com.example.mymovie.data.ProtocolObj;
-import com.example.mymovie.data.ResponseInfo;
+import com.example.mymovie.data.ResponseMovieList;
 import com.example.mymovie.database.DBHelper;
 import com.example.mymovie.fragment.MovieDetailFragment;
 import com.example.mymovie.fragment.MoviePosterFragment;
-import com.example.mymovie.network.NetworkManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,9 +33,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements ActivityActionListener,NavigationView.OnNavigationItemSelectedListener {
 
-    private NetworkManager networkManager;
+    private MovieRepo movieRepo;
     private MoviePagerAdapter moviePagerAdapter;
-    private List<MovieInfo> movieList = new ArrayList<>();
     private ActionBar actionBar;
 
     @Override
@@ -49,7 +45,13 @@ public class MainActivity extends AppCompatActivity
         initFields();
         initDB();
         initView();
-        requestMovieList();
+        movieRepo.requestMovieList("readMovieList", String.valueOf(1), ResponseMovieList.class
+                , new UiResponseCallback() {
+            @Override
+            public void callback(Object... args) {
+                renderViewPager((ArrayList<MovieInfo>)args[0]);
+            }
+        });
     }
 
     @Override
@@ -123,7 +125,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initFields() {
-        networkManager = new NetworkManager(getApplicationContext());
+        movieRepo = new MovieRepo(getApplicationContext());
 
     }
 
@@ -152,46 +154,9 @@ public class MainActivity extends AppCompatActivity
         actionBar = getSupportActionBar();
     }
 
-    private void requestMovieList() {
 
-        if(networkManager.isNetworkAvailable()) {
-            // 영화 목록 요청
-            final ProtocolObj protocolObj = new ProtocolObj();
-            protocolObj.setRequestType(Request.Method.GET);
-            protocolObj.setUrl("readMovieList");
-            protocolObj.setParam("type",String.valueOf(1));
-            protocolObj.setResponseClass(MovieList.class);
 
-            MyFunction myFunction = new MyFunction() {
-                @Override
-                public void callback(String response) {
-                    ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
-                    if(responseInfo.code == 200) {
-                        MovieList list = (MovieList)protocolObj.getResponseClass(response);
-                        movieList = list.getResult();
-
-                        for(MovieInfo item : movieList) {
-                            if(DBHelper.selectMovieListCount(item.getId()) == 0) {
-                                DBHelper.insertMovieList(item);
-                            } else {
-                                DBHelper.updateMovieList(item);
-                            }
-
-                        }
-
-                        renderViewPager();
-                    }
-                }
-            };
-
-            networkManager.request(protocolObj,getApplicationContext(), myFunction);
-        } else {
-            movieList = DBHelper.selectMovieList();
-            renderViewPager();
-        }
-    }
-
-    public void renderViewPager() {
+    public void renderViewPager(List<MovieInfo> movieList) {
         // 뷰 페이저
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
         pager.setOffscreenPageLimit(movieList.size());

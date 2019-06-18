@@ -14,25 +14,21 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.android.volley.Request;
+import com.example.mymovie.MovieRepo;
+import com.example.mymovie.UiResponseCallback;
 import com.example.mymovie.activity.ActivityActionListener;
-import com.example.mymovie.MyFunction;
 import com.example.mymovie.R;
 import com.example.mymovie.data.MovieDetailInfo;
-import com.example.mymovie.data.MovieDetailList;
 import com.example.mymovie.data.MovieInfo;
-import com.example.mymovie.data.ProtocolObj;
-import com.example.mymovie.data.ResponseInfo;
-import com.example.mymovie.database.DBHelper;
+import com.example.mymovie.data.ResponseMovieDetailList;
 import com.example.mymovie.network.ImageLoadTask;
 import com.example.mymovie.network.NetworkManager;
 
 public class MoviePosterFragment extends Fragment {
 
     private ActivityActionListener activityActionListener;
-    private NetworkManager networkManager;
+    private MovieRepo movieRepo;
 
     private MovieDetailFragment movieDetailFragment;
     private ImageView ivPoster;
@@ -84,7 +80,7 @@ public class MoviePosterFragment extends Fragment {
         movieDetailFragment = new MovieDetailFragment();
         index = getArguments().getInt("index");
         movieInfo = (MovieInfo) getArguments().getSerializable("movieItem");
-        networkManager = new NetworkManager(getContext());
+        movieRepo = new MovieRepo(getContext());
     }
 
     private void initView(ViewGroup rootView) {
@@ -93,11 +89,10 @@ public class MoviePosterFragment extends Fragment {
         // 뷰 세팅
         ivPoster = (ImageView) rootView.findViewById(R.id.iv_poster);
 
-        if(networkManager.isNetworkAvailable()) {
+        if(NetworkManager.isNetworkAvailable()) {
             ImageLoadTask imageLoadTask = new ImageLoadTask(movieInfo.getImage(),ivPoster);
             imageLoadTask.execute();
         }
-
 
         tvTitle = (TextView) rootView.findViewById(R.id.tv_title);
         tvTitle.setText((index + 1) + "." + movieInfo.getTitle());
@@ -117,36 +112,10 @@ public class MoviePosterFragment extends Fragment {
             // 상세보기 클릭시
             @Override
             public void onClick(View v) {
-                requestMovie();
-            }
-        });
-    }
-
-    private void requestMovie() {
-        
-        if(networkManager.isNetworkAvailable()) {
-            final ProtocolObj protocolObj = new ProtocolObj();
-            protocolObj.setUrl("readMovie");
-            protocolObj.setRequestType(Request.Method.GET);
-            protocolObj.setParam("name",movieInfo.getTitle());
-            protocolObj.setResponseClass(MovieDetailList.class);
-
-            MyFunction myFunction = new MyFunction() {
-                @Override
-                public void callback(String response) {
-
-                    ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
-
-                    if(responseInfo.code == 200) {
-                        MovieDetailList movieDetailList = (MovieDetailList) protocolObj
-                                .getResponseClass(response);
-                        MovieDetailInfo movieDetailInfo = movieDetailList.getMovieDetailInfo(0);
-
-                        if(DBHelper.selectMovieCount(movieDetailInfo.getId()) == 0) {
-                            DBHelper.insertMovie(movieDetailInfo);
-                        } else {
-                            DBHelper.updateMovie(movieDetailInfo);
-                        }
+                movieRepo.requestMovie("readMovie", movieInfo, ResponseMovieDetailList.class, new UiResponseCallback() {
+                    @Override
+                    public void callback(Object... args) {
+                        MovieDetailInfo movieDetailInfo = (MovieDetailInfo)args[0];
 
                         if(movieDetailInfo != null) {
                             Bundle bundle = new Bundle();
@@ -154,26 +123,12 @@ public class MoviePosterFragment extends Fragment {
                             bundle.putInt("index",index);
                             showMovieDetailFragment(bundle);
                         }
-                    } else if(responseInfo.code == 400) {
-                        String message = getResources().getString(R.string.all_load_error);
-                        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
-                    } else {
-                        String message = getResources().getString(R.string.all_unknown_error);
-                        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
                     }
-                }
-            };
-
-            networkManager.request(protocolObj,getContext(), myFunction);
-        } else {
-            MovieDetailInfo movieDetailInfo = DBHelper.selectMovie(movieInfo.getId());
-            if(movieDetailInfo != null) {
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("movieDetailInfo", movieDetailInfo);
-                bundle.putInt("index",index);
-                showMovieDetailFragment(bundle);
+                });
             }
-        }
+        });
     }
+
+
 
 }

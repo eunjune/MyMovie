@@ -6,6 +6,11 @@ public class CommentList {
     private ArrayList<CommentInfo> result = new ArrayList<>();
 
     public CommentInfo getCommentInfo(int index) {
+
+        if(index < 0 || index >= result.size()) {
+            return null;
+        }
+
         return result.get(index);
     }
 

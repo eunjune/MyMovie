@@ -13,7 +13,7 @@ public class ImageLoadTask extends AsyncTask<Void, Void, Bitmap> {
     private String urlStr;
     private ImageView imageView;
 
-    private static HashMap<String, Bitmap> bitmapHash = new HashMap<>();
+    private static final HashMap<String, Bitmap> bitmapHash = new HashMap<>();
 
     public ImageLoadTask(String urlStr, ImageView imageView) {
         this.urlStr = urlStr;

@@ -98,10 +98,10 @@ public class CommentItemView extends LinearLayout {
                             String strRecommendation = String.valueOf(recommendation);
                             tvRecommendation.setText(strRecommendation);
                         } else if(responseInfo.code == 400) {
-                            String message = "작성 실패";
+                            String message = getResources().getString(R.string.all_write_error);
                             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
                         } else {
-                            String message = "알 수 없는 오류";
+                            String message = getResources().getString(R.string.all_unknown_error);
                             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
                         }
                     }
@@ -136,17 +136,17 @@ public class CommentItemView extends LinearLayout {
         Seconds seconds = Seconds.secondsBetween(ldCreateDateTime, currentDatetime);
 
         if(years.getYears() != 0) {
-            beforeDateTime = String.valueOf(years.getYears()) + "년 전";
+            beforeDateTime = years.getYears() + getResources().getString(R.string.comment_item_before_year);
         } else if(months.getMonths() != 0 ) {
-            beforeDateTime = String.valueOf(months.getMonths()) + "개월 전";
+            beforeDateTime = months.getMonths() + getResources().getString(R.string.comment_item_before_month);
         } else if(days.getDays() != 0) {
-            beforeDateTime = String.valueOf(days.getDays()) + "일 전";
+            beforeDateTime = days.getDays() + getResources().getString(R.string.comment_item_before_day);
         } else if(hours.getHours() != 0) {
-            beforeDateTime = String.valueOf(hours.getHours()) + "시간 전";
+            beforeDateTime = hours.getHours() + getResources().getString(R.string.comment_item_before_hour);
         } else if(minutes.getMinutes() != 0) {
-            beforeDateTime = String.valueOf(minutes.getMinutes()) + "분 전";
+            beforeDateTime = minutes.getMinutes() + getResources().getString(R.string.comment_item_before_minute);
         } else if(seconds.getSeconds() != 0) {
-            beforeDateTime = String.valueOf(seconds.getSeconds()) + "초 전";
+            beforeDateTime = seconds.getSeconds() + getResources().getString(R.string.comment_item_before_second);
         }
 
         tvCreateTime.setText(beforeDateTime);

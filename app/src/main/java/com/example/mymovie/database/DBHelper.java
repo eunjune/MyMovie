@@ -38,23 +38,25 @@ public class DBHelper {
     public static void createTable(String tableName) {
         println("createTable 호출 : " + tableName);
 
-        if(database != null) {
-            if(tableName.equals("movieList")) {
-                database.execSQL(DBsql.createTableMovieListSql);
-                println("movieList 테이블 생성 요청.");
-            }
-
-            if(tableName.equals("movie")) {
-                database.execSQL(DBsql.createTableMovieSql);
-                println("movie 테이블 생성 요청.");
-            }
-
-            if(tableName.equals("comment")) {
-                database.execSQL(DBsql.createTableCommentSql);
-                println("comment 테이블 생성 요청.");
-            }
-        } else {
+        if(database == null && !database.isOpen()) {
             println("데이터베이스를 먼저 오픈하세요.");
+            return;
+        }
+
+        
+        if(tableName.equals("movieList")) {
+            database.execSQL(DBsql.createTableMovieListSql);
+            println("movieList 테이블 생성 요청.");
+        }
+
+        if(tableName.equals("movie")) {
+            database.execSQL(DBsql.createTableMovieSql);
+            println("movie 테이블 생성 요청.");
+        }
+
+        if(tableName.equals("comment")) {
+            database.execSQL(DBsql.createTableCommentSql);
+            println("comment 테이블 생성 요청.");
         }
     }
 
@@ -62,9 +64,19 @@ public class DBHelper {
 
         ArrayList<MovieInfo> list = new ArrayList<>();
 
-        if(database != null) {
-            Cursor cursor = database.rawQuery(DBsql.selectMovieListSql,null);
-            while(cursor.moveToNext()) {
+        if(database == null && !database.isOpen()) {
+            println("데이터베이스를 먼저 오픈하세요.");
+            return list;
+        }
+
+        
+        Cursor cursor = database.rawQuery(DBsql.selectMovieListSql,null);
+
+        if(cursor == null) {
+            return list;
+        }
+
+        while(cursor.moveToNext()) {
                 MovieInfo movieInfo = new MovieInfo();
 
                 movieInfo.setId(cursor.getInt(1));
@@ -84,23 +96,24 @@ public class DBHelper {
             }
 
             cursor.close();
-        } else {
-            println("데이터베이스를 먼저 오픈하세요.");
-        }
-
         return list;
-
     }
 
     public static int selectMovieListCount(int id) {
         int result = 0;
 
-        if(database != null) {
-            Cursor cursor = database.rawQuery(DBsql.selectMovieListIdSql, new String[]{String.valueOf(id)});
-            result = cursor.getCount();
-        } else {
+        if(database == null && !database.isOpen()) {
             println("데이터베이스를 먼저 오픈하세요.");
+            return result;
         }
+
+        Cursor cursor = database.rawQuery(DBsql.selectMovieListIdSql, new String[]{String.valueOf(id)});
+        
+        if(cursor == null) {
+            return result;
+        }
+
+        result = cursor.getCount();
 
         return result;
     }
@@ -109,37 +122,44 @@ public class DBHelper {
 
         MovieDetailInfo movieDetailInfo = new MovieDetailInfo();
 
-        if(database != null) {
-            Cursor cursor = database.rawQuery(DBsql.selectMovieSql,new String[]{String.valueOf(id)});
-            while(cursor.moveToNext()) {
-                movieDetailInfo.setId(cursor.getInt(1));
-                movieDetailInfo.setTitle(cursor.getString(2));
-                movieDetailInfo.setDate(cursor.getString(3));
-                movieDetailInfo.setUser_rating(cursor.getFloat(4));
-                movieDetailInfo.setAudience_rating(cursor.getFloat(5));
-                movieDetailInfo.setReviewer_rating(cursor.getFloat(6));
-                movieDetailInfo.setReservation_rate(cursor.getFloat(7));
-                movieDetailInfo.setReservation_grade(cursor.getInt(8));
-                movieDetailInfo.setGrade(cursor.getInt(9));
-                movieDetailInfo.setThumb(cursor.getString(10));
-                movieDetailInfo.setImage(cursor.getString(11));
-                movieDetailInfo.setPhotos(cursor.getString(12));
-                movieDetailInfo.setVideos(cursor.getString(13));
-                movieDetailInfo.setOutlinks(cursor.getString(14));
-                movieDetailInfo.setGenre(cursor.getString(15));
-                movieDetailInfo.setDuration(cursor.getInt(16));
-                movieDetailInfo.setAudience(cursor.getInt(17));
-                movieDetailInfo.setSynopsis(cursor.getString(18));
-                movieDetailInfo.setDirector(cursor.getString(19));
-                movieDetailInfo.setActor(cursor.getString(20));
-                movieDetailInfo.setLike(cursor.getInt(21));
-                movieDetailInfo.setDislike(cursor.getInt(22));
-            }
-
-            cursor.close();
-        } else {
+        if(database == null && !database.isOpen()) {
             println("데이터베이스를 먼저 오픈하세요.");
+            return movieDetailInfo;
         }
+
+        
+        Cursor cursor = database.rawQuery(DBsql.selectMovieSql,new String[]{String.valueOf(id)});
+
+        if(cursor == null) {
+            return movieDetailInfo;
+        }
+
+        while(cursor.moveToNext()) {
+            movieDetailInfo.setId(cursor.getInt(1));
+            movieDetailInfo.setTitle(cursor.getString(2));
+            movieDetailInfo.setDate(cursor.getString(3));
+            movieDetailInfo.setUser_rating(cursor.getFloat(4));
+            movieDetailInfo.setAudience_rating(cursor.getFloat(5));
+            movieDetailInfo.setReviewer_rating(cursor.getFloat(6));
+            movieDetailInfo.setReservation_rate(cursor.getFloat(7));
+            movieDetailInfo.setReservation_grade(cursor.getInt(8));
+            movieDetailInfo.setGrade(cursor.getInt(9));
+            movieDetailInfo.setThumb(cursor.getString(10));
+            movieDetailInfo.setImage(cursor.getString(11));
+            movieDetailInfo.setPhotos(cursor.getString(12));
+            movieDetailInfo.setVideos(cursor.getString(13));
+            movieDetailInfo.setOutlinks(cursor.getString(14));
+            movieDetailInfo.setGenre(cursor.getString(15));
+            movieDetailInfo.setDuration(cursor.getInt(16));
+            movieDetailInfo.setAudience(cursor.getInt(17));
+            movieDetailInfo.setSynopsis(cursor.getString(18));
+            movieDetailInfo.setDirector(cursor.getString(19));
+            movieDetailInfo.setActor(cursor.getString(20));
+            movieDetailInfo.setLike(cursor.getInt(21));
+            movieDetailInfo.setDislike(cursor.getInt(22));
+        }
+
+        cursor.close();
 
         return movieDetailInfo;
     }
@@ -147,12 +167,18 @@ public class DBHelper {
     public static int selectMovieCount(int id) {
         int result = 0;
 
-        if(database != null) {
-            Cursor cursor = database.rawQuery(DBsql.selectMovieSql, new String[]{String.valueOf(id)});
-            result = cursor.getCount();
-        } else {
+        if(database == null && !database.isOpen()) {
             println("데이터베이스를 먼저 오픈하세요.");
+            return result;
         }
+
+        Cursor cursor = database.rawQuery(DBsql.selectMovieSql, new String[]{String.valueOf(id)});
+
+        if(cursor == null) {
+            return result;
+        }
+
+        result = cursor.getCount();
 
         return result;
     }
@@ -161,28 +187,35 @@ public class DBHelper {
 
         ArrayList<CommentInfo> list = new ArrayList<>();
 
-        if(database != null) {
-            Cursor cursor = database.rawQuery(DBsql.selectCommentSql,new String[]{String.valueOf(movieId)});
-            while(cursor.moveToNext()) {
-                CommentInfo commentInfo = new CommentInfo();
-
-                commentInfo.setId(cursor.getInt(1));
-                commentInfo.setWriter(cursor.getString(2));
-                commentInfo.setMovieId(cursor.getInt(3));
-                commentInfo.setWriter_image(cursor.getString(4));
-                commentInfo.setTime(cursor.getString(5));
-                commentInfo.setTimestamp(cursor.getInt(6));
-                commentInfo.setRating(cursor.getInt(7));
-                commentInfo.setContents(cursor.getString(8));
-                commentInfo.setRecommend(cursor.getInt(9));
-
-                list.add(commentInfo);
-            }
-
-            cursor.close();
-        } else {
+        if(database == null && !database.isOpen()) {
             println("데이터베이스를 먼저 오픈하세요.");
+            return list;
         }
+
+        
+        Cursor cursor = database.rawQuery(DBsql.selectCommentSql,new String[]{String.valueOf(movieId)});
+        
+        if(cursor == null) {
+            return list;
+        }
+
+        while(cursor.moveToNext()) {
+            CommentInfo commentInfo = new CommentInfo();
+
+            commentInfo.setId(cursor.getInt(1));
+            commentInfo.setWriter(cursor.getString(2));
+            commentInfo.setMovieId(cursor.getInt(3));
+            commentInfo.setWriter_image(cursor.getString(4));
+            commentInfo.setTime(cursor.getString(5));
+            commentInfo.setTimestamp(cursor.getInt(6));
+            commentInfo.setRating(cursor.getInt(7));
+            commentInfo.setContents(cursor.getString(8));
+            commentInfo.setRecommend(cursor.getInt(9));
+
+            list.add(commentInfo);
+        }
+
+        cursor.close();
 
         return list;
     }
@@ -190,173 +223,182 @@ public class DBHelper {
     public static int selectCommentCount(int id) {
         int result = 0;
 
-        if(database != null) {
-            Cursor cursor = database.rawQuery(DBsql.selectCommentIdSql, new String[]{String.valueOf(id)});
-            result = cursor.getCount();
-        } else {
+        if(database == null && !database.isOpen()) {
             println("데이터베이스를 먼저 오픈하세요.");
+            return result;
         }
+
+        Cursor cursor = database.rawQuery(DBsql.selectCommentIdSql, new String[]{String.valueOf(id)});
+       
+        if(cursor == null) {
+            return result;
+        }
+
+        result = cursor.getCount();
+        
 
         return result;
     }
 
     public static void insertMovieList(MovieInfo movieInfo) {
-        if(database != null) {
 
-            Object[] params = {
-                    movieInfo.getId(),
-                    movieInfo.getTitle(),
-                    movieInfo.getTitle_eng(),
-                    movieInfo.getDate(),
-                    movieInfo.getUser_rating(),
-                    movieInfo.getAudience_rating(),
-                    movieInfo.getReviewer_rating(),
-                    movieInfo.getReservation_rate(),
-                    movieInfo.getReservation_grade(),
-                    movieInfo.getGrade(),
-                    movieInfo.getThumb(),
-                    movieInfo.getImage()
-            };
-            database.execSQL(DBsql.insertMovieListSql,params);
-
-        } else {
+        if(database == null && !database.isOpen()) {
             println("데이터베이스를 먼저 오픈하세요.");
+            return;
         }
+
+        Object[] params = {
+                movieInfo.getId(),
+                movieInfo.getTitle(),
+                movieInfo.getTitle_eng(),
+                movieInfo.getDate(),
+                movieInfo.getUser_rating(),
+                movieInfo.getAudience_rating(),
+                movieInfo.getReviewer_rating(),
+                movieInfo.getReservation_rate(),
+                movieInfo.getReservation_grade(),
+                movieInfo.getGrade(),
+                movieInfo.getThumb(),
+                movieInfo.getImage()
+        };
+        database.execSQL(DBsql.insertMovieListSql,params);
     }
 
     public static void insertMovie(MovieDetailInfo movieDetailInfo) {
-        if(database != null) {
 
-            Object[] params = {
-                    movieDetailInfo.getId(),
-                    movieDetailInfo.getTitle(),
-                    movieDetailInfo.getDate(),
-                    movieDetailInfo.getUser_rating(),
-                    movieDetailInfo.getAudience_rating(),
-                    movieDetailInfo.getReviewer_rating(),
-                    movieDetailInfo.getReservation_rate(),
-                    movieDetailInfo.getReservation_grade(),
-                    movieDetailInfo.getGrade(),
-                    movieDetailInfo.getThumb(),
-                    movieDetailInfo.getImage(),
-                    movieDetailInfo.getPhotos(),
-                    movieDetailInfo.getVideos(),
-                    movieDetailInfo.getOutlinks(),
-                    movieDetailInfo.getGenre(),
-                    movieDetailInfo.getDuration(),
-                    movieDetailInfo.getAudience(),
-                    movieDetailInfo.getSynopsis(),
-                    movieDetailInfo.getDirector(),
-                    movieDetailInfo.getActor(),
-                    movieDetailInfo.getLike(),
-                    movieDetailInfo.getDislike()
-            };
-            database.execSQL(DBsql.insertMovieSql,params);
-
-        } else {
+        if(database == null && !database.isOpen()) {
             println("데이터베이스를 먼저 오픈하세요.");
+            return;
         }
+
+        Object[] params = {
+                movieDetailInfo.getId(),
+                movieDetailInfo.getTitle(),
+                movieDetailInfo.getDate(),
+                movieDetailInfo.getUser_rating(),
+                movieDetailInfo.getAudience_rating(),
+                movieDetailInfo.getReviewer_rating(),
+                movieDetailInfo.getReservation_rate(),
+                movieDetailInfo.getReservation_grade(),
+                movieDetailInfo.getGrade(),
+                movieDetailInfo.getThumb(),
+                movieDetailInfo.getImage(),
+                movieDetailInfo.getPhotos(),
+                movieDetailInfo.getVideos(),
+                movieDetailInfo.getOutlinks(),
+                movieDetailInfo.getGenre(),
+                movieDetailInfo.getDuration(),
+                movieDetailInfo.getAudience(),
+                movieDetailInfo.getSynopsis(),
+                movieDetailInfo.getDirector(),
+                movieDetailInfo.getActor(),
+                movieDetailInfo.getLike(),
+                movieDetailInfo.getDislike()
+        };
+        database.execSQL(DBsql.insertMovieSql,params);
     }
 
     public static void insertComment(CommentInfo commentInfo) {
-        if(database != null) {
 
-            Object[] params = {
-                    commentInfo.getId(),
-                    commentInfo.getWriter(),
-                    commentInfo.getMovieId(),
-                    commentInfo.getWriter_image(),
-                    commentInfo.getTime(),
-                    commentInfo.getTimestamp(),
-                    commentInfo.getRating(),
-                    commentInfo.getContents(),
-                    commentInfo.getRecommend()
-            };
-            database.execSQL(DBsql.insertCommentSql,params);
-
-        } else {
+        if(database == null && !database.isOpen()) {
             println("데이터베이스를 먼저 오픈하세요.");
+            return;
         }
+
+        Object[] params = {
+                commentInfo.getId(),
+                commentInfo.getWriter(),
+                commentInfo.getMovieId(),
+                commentInfo.getWriter_image(),
+                commentInfo.getTime(),
+                commentInfo.getTimestamp(),
+                commentInfo.getRating(),
+                commentInfo.getContents(),
+                commentInfo.getRecommend()
+        };
+        database.execSQL(DBsql.insertCommentSql,params);
     }
 
     public static void updateMovieList(MovieInfo movieInfo) {
-        if(database != null) {
 
-            Object[] params = {
-                    movieInfo.getTitle(),
-                    movieInfo.getTitle_eng(),
-                    movieInfo.getDate(),
-                    movieInfo.getUser_rating(),
-                    movieInfo.getAudience_rating(),
-                    movieInfo.getReviewer_rating(),
-                    movieInfo.getReservation_rate(),
-                    movieInfo.getReservation_grade(),
-                    movieInfo.getGrade(),
-                    movieInfo.getThumb(),
-                    movieInfo.getImage(),
-                    movieInfo.getId()
-
-            };
-            database.execSQL(DBsql.updateMovieListSql,params);
-
-        } else {
+        if(database == null && !database.isOpen()) {
             println("데이터베이스를 먼저 오픈하세요.");
+            return;
         }
+
+        Object[] params = {
+                movieInfo.getTitle(),
+                movieInfo.getTitle_eng(),
+                movieInfo.getDate(),
+                movieInfo.getUser_rating(),
+                movieInfo.getAudience_rating(),
+                movieInfo.getReviewer_rating(),
+                movieInfo.getReservation_rate(),
+                movieInfo.getReservation_grade(),
+                movieInfo.getGrade(),
+                movieInfo.getThumb(),
+                movieInfo.getImage(),
+                movieInfo.getId()
+
+        };
+        database.execSQL(DBsql.updateMovieListSql,params);
+
     }
 
     public static void updateMovie(MovieDetailInfo movieDetailInfo) {
-        if(database != null) {
 
-            Object[] params = {
-                    movieDetailInfo.getTitle(),
-                    movieDetailInfo.getDate(),
-                    movieDetailInfo.getUser_rating(),
-                    movieDetailInfo.getAudience_rating(),
-                    movieDetailInfo.getReviewer_rating(),
-                    movieDetailInfo.getReservation_rate(),
-                    movieDetailInfo.getReservation_grade(),
-                    movieDetailInfo.getGrade(),
-                    movieDetailInfo.getThumb(),
-                    movieDetailInfo.getImage(),
-                    movieDetailInfo.getPhotos(),
-                    movieDetailInfo.getVideos(),
-                    movieDetailInfo.getOutlinks(),
-                    movieDetailInfo.getGenre(),
-                    movieDetailInfo.getDuration(),
-                    movieDetailInfo.getAudience(),
-                    movieDetailInfo.getSynopsis(),
-                    movieDetailInfo.getDirector(),
-                    movieDetailInfo.getActor(),
-                    movieDetailInfo.getLike(),
-                    movieDetailInfo.getDislike(),
-                    movieDetailInfo.getId()
-            };
-            database.execSQL(DBsql.updateMovieSql,params);
-
-        } else {
+        if(database == null && !database.isOpen()) {
             println("데이터베이스를 먼저 오픈하세요.");
+            return;
         }
+
+        Object[] params = {
+                movieDetailInfo.getTitle(),
+                movieDetailInfo.getDate(),
+                movieDetailInfo.getUser_rating(),
+                movieDetailInfo.getAudience_rating(),
+                movieDetailInfo.getReviewer_rating(),
+                movieDetailInfo.getReservation_rate(),
+                movieDetailInfo.getReservation_grade(),
+                movieDetailInfo.getGrade(),
+                movieDetailInfo.getThumb(),
+                movieDetailInfo.getImage(),
+                movieDetailInfo.getPhotos(),
+                movieDetailInfo.getVideos(),
+                movieDetailInfo.getOutlinks(),
+                movieDetailInfo.getGenre(),
+                movieDetailInfo.getDuration(),
+                movieDetailInfo.getAudience(),
+                movieDetailInfo.getSynopsis(),
+                movieDetailInfo.getDirector(),
+                movieDetailInfo.getActor(),
+                movieDetailInfo.getLike(),
+                movieDetailInfo.getDislike(),
+                movieDetailInfo.getId()
+        };
+        database.execSQL(DBsql.updateMovieSql,params);
+
     }
 
     public static void updateComment(CommentInfo commentInfo) {
-        if(database != null) {
 
-            Object[] params = {
-                    commentInfo.getWriter(),
-                    commentInfo.getMovieId(),
-                    commentInfo.getWriter_image(),
-                    commentInfo.getTime(),
-                    commentInfo.getTimestamp(),
-                    commentInfo.getRating(),
-                    commentInfo.getContents(),
-                    commentInfo.getRecommend(),
-                    commentInfo.getId()
-            };
-            database.execSQL(DBsql.updateCommentSql,params);
-
-        } else {
+        if(database == null && !database.isOpen()) {
             println("데이터베이스를 먼저 오픈하세요.");
+            return;
         }
+
+        Object[] params = {
+                commentInfo.getWriter(),
+                commentInfo.getMovieId(),
+                commentInfo.getWriter_image(),
+                commentInfo.getTime(),
+                commentInfo.getTimestamp(),
+                commentInfo.getRating(),
+                commentInfo.getContents(),
+                commentInfo.getRecommend(),
+                commentInfo.getId()
+        };
+        database.execSQL(DBsql.updateCommentSql,params);
     }
 
     // 연결되어 있으면 네트ㅝ크로 가져와서 데이터베이스에 저장.

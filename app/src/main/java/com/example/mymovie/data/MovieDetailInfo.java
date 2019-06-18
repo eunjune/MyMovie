@@ -32,14 +32,11 @@ public class MovieDetailInfo implements Serializable {
 
     private static HashMap<Integer,Integer> GRADE_IMAGE_ID = null;
 
-    public MovieDetailInfo() {
-        if(GRADE_IMAGE_ID == null) {
-            GRADE_IMAGE_ID = new HashMap<>();
-            GRADE_IMAGE_ID.put(12, R.drawable.ic_12);
-            GRADE_IMAGE_ID.put(15,R.drawable.ic_15);
-            GRADE_IMAGE_ID.put(19,R.drawable.ic_19);
-        }
-
+    static {
+        GRADE_IMAGE_ID = new HashMap<>();
+        GRADE_IMAGE_ID.put(12, R.drawable.ic_12);
+        GRADE_IMAGE_ID.put(15,R.drawable.ic_15);
+        GRADE_IMAGE_ID.put(19,R.drawable.ic_19);
     }
 
     public int getId() {

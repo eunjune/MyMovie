@@ -1,7 +1,6 @@
 <resources>
-    <string name="app_name">시네마천국</string>
-    <string name="action_bar_movie_list">영화 목록</string>
-    <string name="action_bar_movie_detail">영화 상세</string>
+
+    <string name="manifest_app_name">시네마천국</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">iws1605</string>
@@ -9,10 +8,46 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
-
-    <string name="poster_grade">세 관람가</string>
-    <string name="poster_reservation_rate">예매율</string>
-    <string name="detail_duration">분</string>
+    <string name="all_reservation_rate">예매율</string>
     <string name="all_comment_rating">(1,142명 참여)</string>
+    <string name="all_comment_left_bucket">(</string>
+    <string name="all_comment_right_bucket">)</string>
+    <string name="all_unknown_error">알 수 없는 오류</string>
+    <string name="all_write_error">작성 실패</string>
+    <string name="all_connection_error">네트워크가 연결되어 있지 않습니다</string>
+    <string name="all_load_error">불러오기 에러</string>
+    <string name="all_movie_list">영화 목록</string>
+    <string name="all_movie_detail">영화 상세</string>
+    <string name="all_comment_comment">한줄평</string>
+    <string name="all_write">작성하기</string>
+    <string name="all_cancel">취소</string>
+
+    <string name="comment_write_input">평점을 입력해주세요</string>
+    <string name="comment_write_hint">100자 이내로 작성해주세요.</string>
+    <string name="comment_write_save">저장</string>
+
+    <string name="comment_item_declaration">신고하기</string>
+    <string name="comment_item_recommendation">추천</string>
+    <string name="comment_item_before_year">년 전</string>
+    <string name="comment_item_before_month">개월 전</string>
+    <string name="comment_item_before_day">일 전</string>
+    <string name="comment_item_before_hour">시간 전</string>
+    <string name="comment_item_before_minute">분 전</string>
+    <string name="comment_item_before_second">초 전</string>
+
+    <string name="movie_detail_rating">평점</string>
+    <string name="movie_detail_accumulate">누적관객수</string>
+    <string name="movie_detail_summary">줄거리</string>
+    <string name="movie_detail_director_starring">감독/출연</string>
+    <string name="movie_detail_director">감독</string>
+    <string name="movie_detail_starring">출연</string>
+    <string name="movie_detail_gallery">갤러리</string>
+    <string name="movie_detail_view_all">모두 보기</string>
+    <string name="movie_detail_duration">분</string>
+    <string name="movie_detail_reserve">예매하기</string>
+
+    <string name="movie_poster_detail">상세보기</string>
+    <string name="movie_poster_grade">세 관람가</string>
+
 
 </resources>

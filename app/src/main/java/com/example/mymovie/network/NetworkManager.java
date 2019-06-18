@@ -16,14 +16,16 @@ import com.example.mymovie.data.ProtocolObj;
 
 public class NetworkManager {
 
-    public static RequestQueue requestQueue;
+    private static RequestQueue requestQueue;
     private static String url = "http://boostcourse-appapi.connect.or.kr:10000/movie/";
+    private Context context;
 
 
     public NetworkManager(Context context) {
         if(requestQueue == null) {
             requestQueue = Volley.newRequestQueue(context);
         }
+        this.context = context;
     }
 
     public void request(final ProtocolObj protocolParam, final Context context, final MyFunction func) {
@@ -48,15 +50,17 @@ public class NetworkManager {
         NetworkManager.requestQueue.add(request);
     }
 
-    public static int getConnectivityStatus(Context context) {
-        ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-
+    public boolean isNetworkAvailable() {
+        ConnectivityManager manager = (ConnectivityManager) this.context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+        int networkState = -1;
+
         if(networkInfo != null) {
-            return networkInfo.getType();
+            networkState = networkInfo.getType();
         }
 
-        return -1;
+        return networkState == ConnectivityManager.TYPE_MOBILE || networkState == ConnectivityManager.TYPE_WIFI;
 
     }
+
 }

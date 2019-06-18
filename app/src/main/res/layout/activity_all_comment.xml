@@ -61,7 +61,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="10dp"
-        android:background="@drawable/section_boudary">
+        android:background="@drawable/section_boudary"
+        android:orientation="horizontal">
 
     </LinearLayout>
 
@@ -78,7 +79,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/write_btn"
-            android:text="한줄평"
+            android:text="@string/all_comment_comment"
             android:textColor="@android:color/background_dark"
             android:textSize="18dp"
             android:textStyle="bold" />
@@ -97,7 +98,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:background="@android:color/transparent"
-            android:text="작성하기"
+            android:text="@string/all_write"
             android:textColor="#E44418"
             android:textSize="18dp"
             android:textStyle="bold"

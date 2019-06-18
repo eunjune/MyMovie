@@ -47,13 +47,6 @@ public class AllCommentActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-
-    }
-
     private void processIntent(Intent intent) {
         if (intent != null) {
             commentList = (ArrayList<CommentInfo>) intent.getSerializableExtra("commentList");
@@ -73,9 +66,11 @@ public class AllCommentActivity extends AppCompatActivity {
             tvRating.setText(String.valueOf(movieDetailInfo.getAvgRating()));
 
             tvTotal = (TextView)findViewById(R.id.tv_total);
-            tvTotal.setText("(" + String.valueOf(intent.getIntExtra("total",0))
-                                + "명 참여)");
-
+            tvTotal.setText(getResources().getString(R.string.all_comment_left_bucket)
+                + intent.getIntExtra("total",0)
+                + getResources().getString(R.string.all_comment_rating)
+                + getResources().getString(R.string.all_comment_right_bucket));
+                               
             ListView listView = (ListView) findViewById(R.id.listView);
             CommentAdapter adapter = new CommentAdapter(commentList, getApplicationContext());
 

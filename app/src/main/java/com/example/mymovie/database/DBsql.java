@@ -4,8 +4,7 @@ public class DBsql {
 
     public static final String createTableMovieListSql = "create table if not exists movie_list" +
             "(" +
-            "_id integer PRIMARY KEY autoincrement, " +
-            "id integer, " +
+            "id integer PRIMARY KEY autoincrement, " +
             "title text, " +
             "title_eng, " +
             "dateValue text, " +
@@ -21,8 +20,7 @@ public class DBsql {
 
     public static final String createTableMovieSql = "create table if not exists movie" +
             "(" +
-            "_id integer PRIMARY KEY autoincrement, " +
-            "id integer," +
+            "id integer PRIMARY KEY autoincrement," +
             "title text," +
             "dateValue text," +
             "user_rating float," +
@@ -49,8 +47,7 @@ public class DBsql {
 
     public static final String createTableCommentSql = "create table if not exists comment" +
             "(" +
-            "_id integer PRIMARY KEY autoincrement," +
-            "id integer," +
+            "id integer PRIMARY KEY autoincrement," +
             "writer text," +
             "movieId integer," +
             "writer_image text," +

@@ -44,7 +44,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="평점을 입력해주세요" />
+        android:text="@string/comment_write_input" />
 
     <EditText
         android:id="@+id/et_contents"
@@ -53,7 +53,7 @@
         android:layout_margin="10dp"
         android:background="@drawable/edit_border"
         android:gravity="top"
-        android:hint="100자 이내로 작성해주세요."
+        android:hint="@string/comment_write_hint"
         android:maxLength="100"
         android:padding="10dp"
         android:textCursorDrawable="@color/colorPrimaryDark"
@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
             android:background="@drawable/linear_border_purple"
-            android:text="저장"
+            android:text="@string/all_write"
             android:textColor="@color/colorAccent" />
 
 
@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
             android:background="@drawable/linear_border_purple"
-            android:text="취소"
+            android:text="@string/all_cancel"
             android:textColor="@color/colorAccent" />
     </LinearLayout>
 

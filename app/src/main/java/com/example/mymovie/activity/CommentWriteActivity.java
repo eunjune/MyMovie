@@ -1,7 +1,6 @@
 package com.example.mymovie.activity;
 
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -54,9 +53,7 @@ public class CommentWriteActivity extends AppCompatActivity{
             @Override
             public void onClick(View v) {
 
-                int networkState = NetworkManager.getConnectivityStatus(getApplicationContext());
-
-                if(networkState == ConnectivityManager.TYPE_MOBILE || networkState == ConnectivityManager.TYPE_WIFI) {
+                if(networkManager.isNetworkAvailable()) {
                     final ProtocolObj protocolObj = new ProtocolObj();
                     protocolObj.setUrl("createComment");
                     protocolObj.setRequestType(Request.Method.GET);
@@ -75,10 +72,10 @@ public class CommentWriteActivity extends AppCompatActivity{
                             if(responseInfo.code == 200) {
                                 finish();
                             } else if(responseInfo.code == 400) {
-                                String message = "작성 실패";
+                                String message = getResources().getString(R.string.all_write_error);
                                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                             } else {
-                                String message = "알 수 없는 오류";
+                                String message = getResources().getString(R.string.all_unknown_error);
                                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                             }
                         }
@@ -86,7 +83,7 @@ public class CommentWriteActivity extends AppCompatActivity{
 
                     networkManager.request(protocolObj,getApplicationContext(), myFunction);
                 } else {
-                    String message = "네트워크가 연결되어 있지 않습니다.";
+                    String message = getResources().getString(R.string.all_connection_error);
                     Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                 }
 

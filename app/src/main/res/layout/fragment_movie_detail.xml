@@ -5,8 +5,7 @@
     android:layout_height="wrap_content">
 
     <!-- 포스터, 제목, 날짜 등 -->
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/background_light"
@@ -53,8 +52,7 @@
                         android:id="@+id/iv_age"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:textColor="@android:color/background_light" />
+                        android:layout_marginLeft="10dp" />
 
                 </LinearLayout>
 
@@ -159,7 +157,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="예매율"
+                    android:text="@string/all_reservation_rate"
                     android:textSize="20dp"
                     android:textStyle="bold" />
 
@@ -202,7 +200,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="펑점"
+                    android:text="@string/movie_detail_rating"
                     android:textSize="20dp"
                     android:textStyle="bold" />
 
@@ -244,7 +242,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="누적관객수"
+                    android:text="@string/movie_detail_accumulate"
                     android:textSize="20dp"
                     android:textStyle="bold"
 
@@ -283,14 +281,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="줄거리"
+                android:layout_gravity="center_vertical"
+                android:text="@string/movie_detail_summary"
                 android:textColor="@android:color/background_dark"
                 android:textSize="18dp"
                 android:textStyle="bold" />
 
-            <EditText
-                android:id="@+id/et_synopsis"
+            <TextView
+                android:id="@+id/tv_synopsis"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@null"
@@ -320,7 +318,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="감독/출연"
+                android:text="@string/movie_detail_director_starring"
                 android:textColor="@android:color/background_dark"
                 android:textSize="18dp"
                 android:textStyle="bold" />
@@ -335,7 +333,7 @@
 
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="감독"
+                    android:text="@string/movie_detail_director"
                     android:textColor="@android:color/background_dark"
                     android:textSize="15dp" />
 
@@ -357,7 +355,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="출연"
+                    android:text="@string/movie_detail_starring"
                     android:textColor="@android:color/background_dark"
                     android:textSize="15dp" />
 
@@ -390,7 +388,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="갤러리"
+                android:text="@string/movie_detail_gallery"
                 android:textColor="@android:color/background_dark"
                 android:textSize="18dp"
                 android:textStyle="bold" />
@@ -423,7 +421,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@id/write_btn"
-                android:text="한줄평"
+                android:text="@string/all_comment_comment"
                 android:textColor="@android:color/background_dark"
                 android:textSize="18dp"
                 android:textStyle="bold" />
@@ -442,7 +440,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:background="@android:color/transparent"
-                android:text="작성하기"
+                android:text="@string/all_write"
                 android:textColor="#E44418"
                 android:textSize="18dp"
                 android:textStyle="bold"
@@ -461,7 +459,7 @@
                 android:layout_height="60dp"
                 android:layout_alignParentBottom="true"
                 android:background="@drawable/linear_border_purple"
-                android:text="모두 보기"
+                android:text="@string/movie_detail_view_all"
                 android:textColor="@color/colorAccent"
                 android:textSize="20dp" />
 
@@ -501,7 +499,7 @@
                 android:layout_gravity="center"
                 android:layout_weight="5"
                 android:background="#FF6600"
-                android:text="예매하기"
+                android:text="@string/movie_detail_reserve"
                 android:textColor="@android:color/background_light"
                 android:textSize="25dp" />
 

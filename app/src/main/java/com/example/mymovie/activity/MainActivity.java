@@ -1,7 +1,6 @@
 package com.example.mymovie.activity;
 
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -11,6 +10,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -34,75 +34,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements ActivityActionListener,NavigationView.OnNavigationItemSelectedListener {
 
     private NetworkManager networkManager;
     private MoviePagerAdapter moviePagerAdapter;
     private List<MovieInfo> movieList = new ArrayList<>();
+    private ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        networkManager = new NetworkManager(getApplicationContext());
-
-        DBHelper.openDatabase(getApplicationContext(),"MyMovie");
-        DBHelper.createTable("movieList");
-        DBHelper.createTable("movie");
-        DBHelper.createTable("comment");
-
-        // 바로 가기 메뉴
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-
-        int networkState = NetworkManager.getConnectivityStatus(getApplicationContext());
-
-        if(networkState == ConnectivityManager.TYPE_MOBILE || networkState == ConnectivityManager.TYPE_WIFI) {
-            // 영화 목록 요청
-            final ProtocolObj protocolObj = new ProtocolObj();
-            protocolObj.setRequestType(Request.Method.GET);
-            protocolObj.setUrl("readMovieList");
-            protocolObj.setParam("type",String.valueOf(1));
-            protocolObj.setResponseClass(MovieList.class);
-
-            MyFunction myFunction = new MyFunction() {
-                @Override
-                public void callback(String response) {
-                    ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
-                    if(responseInfo.code == 200) {
-                        MovieList list = (MovieList)protocolObj.getResponseClass(response);
-                        movieList = list.getResult();
-
-                        for(MovieInfo item : movieList) {
-                            if(DBHelper.selectMovieListCount(item.getId()) == 0) {
-                                DBHelper.insertMovieList(item);
-                            } else {
-                                DBHelper.updateMovieList(item);
-                            }
-
-                        }
-
-                        renderViewPager();
-                    }
-                }
-            };
-
-            networkManager.request(protocolObj,getApplicationContext(), myFunction);
-        } else {
-            movieList = DBHelper.selectMovieList();
-            renderViewPager();
-        }
+        initFields();
+        initDB();
+        initView();
+        requestMovieList();
     }
 
     @Override
@@ -113,7 +60,8 @@ public class MainActivity extends AppCompatActivity
         if (resultCode == RESULT_OK) {
             MovieDetailInfo movieDetailInfo = (MovieDetailInfo)intent.getSerializableExtra("movieDetailInfo");
             int index = intent.getIntExtra("index",-1);
-            moviePagerAdapter.moviePosterItems.get(index).getMovieDetailFragment().showCommentWriteActivity(movieDetailInfo);
+            moviePagerAdapter.moviePosterItems.get(index).getMovieDetailFragment()
+                                                        .showCommentWriteActivity(movieDetailInfo);
         }
     }
 
@@ -169,6 +117,80 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    public void setTitle(String title) {
+        actionBar.setTitle(title);
+    }
+
+    private void initFields() {
+        networkManager = new NetworkManager(getApplicationContext());
+
+    }
+
+
+    private void initDB() {
+        DBHelper.openDatabase(getApplicationContext(),"MyMovie");
+        DBHelper.createTable("movieList");
+        DBHelper.createTable("movie");
+        DBHelper.createTable("comment");
+    }
+
+    private void initView() {
+        // 바로 가기 메뉴
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        actionBar = getSupportActionBar();
+    }
+
+    private void requestMovieList() {
+
+        if(networkManager.isNetworkAvailable()) {
+            // 영화 목록 요청
+            final ProtocolObj protocolObj = new ProtocolObj();
+            protocolObj.setRequestType(Request.Method.GET);
+            protocolObj.setUrl("readMovieList");
+            protocolObj.setParam("type",String.valueOf(1));
+            protocolObj.setResponseClass(MovieList.class);
+
+            MyFunction myFunction = new MyFunction() {
+                @Override
+                public void callback(String response) {
+                    ResponseInfo responseInfo = protocolObj.getResponseInfo(response);
+                    if(responseInfo.code == 200) {
+                        MovieList list = (MovieList)protocolObj.getResponseClass(response);
+                        movieList = list.getResult();
+
+                        for(MovieInfo item : movieList) {
+                            if(DBHelper.selectMovieListCount(item.getId()) == 0) {
+                                DBHelper.insertMovieList(item);
+                            } else {
+                                DBHelper.updateMovieList(item);
+                            }
+
+                        }
+
+                        renderViewPager();
+                    }
+                }
+            };
+
+            networkManager.request(protocolObj,getApplicationContext(), myFunction);
+        } else {
+            movieList = DBHelper.selectMovieList();
+            renderViewPager();
+        }
+    }
+
     public void renderViewPager() {
         // 뷰 페이저
         ViewPager pager = (ViewPager) findViewById(R.id.pager);
@@ -189,7 +211,7 @@ public class MainActivity extends AppCompatActivity
         pager.setAdapter(moviePagerAdapter);
     }
 
-    class MoviePagerAdapter extends FragmentStatePagerAdapter {
+    private class MoviePagerAdapter extends FragmentStatePagerAdapter {
         ArrayList<MoviePosterFragment> moviePosterItems = new ArrayList<>();
 
         public MoviePagerAdapter(FragmentManager fm) {
